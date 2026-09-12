@@ -1,0 +1,44 @@
+/* ================================================================
+   DARKVAULT — Local Font Fallbacks
+   Ensures fonts are always visible even without internet
+   ================================================================ */
+
+/* Nosifer fallback — used for big horror titles */
+@font-face {
+  font-family: 'Nosifer';
+  src: local('Papyrus'), local('Chiller'), local('Impact');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Cinzel Decorative fallback — used for section headings */
+@font-face {
+  font-family: 'Cinzel Decorative';
+  src: local('Palatino Linotype'), local('Palatino'), local('Book Antiqua'), local('Georgia');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* UnifrakturMaguntia fallback — used for logo */
+@font-face {
+  font-family: 'UnifrakturMaguntia';
+  src: local('Papyrus'), local('Chiller'), local('Old English Text MT'), local('Impact');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Special Elite fallback — used for body story text */
+@font-face {
+  font-family: 'Special Elite';
+  src: local('Courier New'), local('Courier'), local('Lucida Console');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Creepster fallback — used for buttons */
+@font-face {
+  font-family: 'Creepster';
+  src: local('Impact'), local('Arial Black'), local('Franklin Gothic Heavy');
+  font-weight: normal;
+  font-style: normal;
+}

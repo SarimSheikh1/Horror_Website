@@ -2,7 +2,10 @@
    WORLD-CLASS HORROR WEBSITE — Master Stylesheet
    ================================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=Special+Elite&family=Cinzel+Decorative:wght@400;700;900&family=UnifrakturMaguntia&family=MedievalSharp&display=swap');
+/* Google Fonts — loads if online */
+@import url('https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=Special+Elite&family=Cinzel+Decorative:wght@400;700;900&family=UnifrakturMaguntia&display=swap');
+/* Local fallbacks — always works offline */
+@import url('fonts.css');
 
 /* ---- CSS Variables ---- */
 :root {
@@ -19,10 +22,10 @@
   --border:      rgba(139,0,0,0.5);
   --glow-red:    0 0 20px rgba(255,0,0,0.6), 0 0 60px rgba(139,0,0,0.3);
   --glow-white:  0 0 20px rgba(255,255,255,0.4);
-  --font-horror: 'Nosifer', cursive;
-  --font-gothic: 'Cinzel Decorative', serif;
-  --font-story:  'Special Elite', cursive;
-  --font-title:  'UnifrakturMaguntia', cursive;
+  --font-horror: 'Nosifer', 'Chiller', 'Papyrus', 'Impact', cursive;
+  --font-gothic: 'Cinzel Decorative', 'Palatino Linotype', 'Book Antiqua', 'Georgia', serif;
+  --font-story:  'Special Elite', 'Courier New', 'Courier', monospace;
+  --font-title:  'UnifrakturMaguntia', 'Papyrus', 'Old English Text MT', 'Impact', cursive;
   --transition:  0.3s ease;
 }
 
