@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>What Type of Horror Are You? — DarkVault</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=Special+Elite&family=Cinzel+Decorative:wght@400;700;900&family=UnifrakturMaguntia&display=swap" rel="stylesheet"/>
+  <style>
+    .quiz-wrap {
+      max-width:680px; margin:0 auto; padding:40px 20px 80px;
+      position:relative; z-index:10;
+    }
+    /* Progress bar */
+    .quiz-progress-bar {
+      height:3px; background:#0a0000; border-radius:2px;
+      overflow:hidden; margin-bottom:40px;
+    }
+    .quiz-progress-fill {
+      height:100%; background:linear-gradient(90deg,var(--blood),var(--crimson));
+      width:0%; transition:width .6s ease;
+      box-shadow:0 0 6px var(--blood);
+    }
+    .quiz-step-label {
+      font-family:var(--font-gothic); font-size:.6rem; letter-spacing:3px;
+      color:#333; text-transform:uppercase; text-align:right; margin-bottom:6px;
+    }
+
+    /* Question card */
+    .question-card {
+      border:1px solid var(--border); background:rgba(10,0,0,.7);
+      border-radius:4px; padding:36px 36px 28px;
+      box-shadow:0 0 40px rgba(255,0,0,.08), inset 0 0 20px rgba(0,0,0,.4);
+      opacity:0; transform:translateY(20px);
+      transition:opacity .5s ease, transform .5s ease;
+    }
+    .question-card.visible { opacity:1; transform:translateY(0); }
+
+    .q-num  { font-family:var(--font-gothic); font-size:.6rem; letter-spacing:3px;
+               color:var(--blood); text-transform:uppercase; margin-bottom:10px; }
+    .q-text { font-family:var(--font-gothic); font-size:clamp(1rem,2.5vw,1.4rem);
+               color:var(--ghost); line-height:1.5; margin-bottom:28px;
+               text-shadow:0 0 10px rgba(255,0,0,.2); }
+
+    /* Options */
+    .options-grid { display:grid; gap:10px; }
+    .opt-btn {
+      display:flex; align-items:center; gap:14px;
+      padding:14px 18px; border:1px solid #1a0000;
+      background:rgba(15,0,0,.5); border-radius:3px;
+      text-align:left; transition:var(--transition);
+      cursor:pointer; width:100%;
+    }
+    .opt-btn:hover {
+      border-color:var(--blood); background:rgba(80,0,0,.2);
+      box-shadow:0 0 16px rgba(255,0,0,.2); transform:translateX(4px);
+    }
+    .opt-btn.selected {
+      border-color:var(--crimson); background:rgba(139,0,0,.3);
+      box-shadow:0 0 20px rgba(255,0,0,.3);
+    }
+    .opt-icon { font-size:1.4rem; flex-shrink:0; }
+    .opt-label { font-family:var(--font-story); font-size:.92rem; color:#bbb; line-height:1.5; }
+
+    /* Fake analysis screen */
+    #analysis-screen {
+      display:none; text-align:center; padding:40px 20px;
+    }
+    .analysis-bar-wrap { max-width:400px; margin:0 auto 8px; }
+    .analysis-bar-track { height:4px; background:#0a0000; border-radius:2px; overflow:hidden; }
+    .analysis-bar-fill  { height:100%; background:linear-gradient(90deg,var(--blood),var(--crimson));
+                          width:0%; transition:width .3s ease; box-shadow:0 0 6px var(--blood); }
+    .analysis-label { font-family:var(--font-gothic); font-size:.6rem; letter-spacing:2px;
+                      color:#333; text-align:left; margin-bottom:4px; text-transform:uppercase; }
+
+    /* Result card (fake, briefly shown before scare) */
+    #result-card {
+      display:none; border:1px solid var(--border);
+      background:rgba(10,0,0,.8); border-radius:4px;
+      padding:32px; text-align:center;
+    }
+    #result-icon  { font-size:5rem; margin-bottom:16px; display:block; }
+    #result-title { font-family:var(--font-gothic); font-size:1.5rem; color:var(--ghost);
+                    margin-bottom:12px; text-shadow:var(--glow-red); }
+    #result-text  { font-size:.9rem; color:#888; line-height:1.8; margin-bottom:20px; }
+
+    @media(max-width:500px){ .question-card{ padding:24px 20px 20px; } }
+  </style>
+</head>
+<body>
+  <div id="flicker"></div>
+  <div class="vignette"></div>
+  <div id="particles"></div>
+  <div id="cursor"></div>
+  <div id="cursor-dot"></div>
+  <div class="blood-drip">
+    <span style="height:52px;animation-duration:4s"></span>
+    <span style="height:78px;animation-duration:5s;animation-delay:.7s"></span>
+    <span style="height:44px;animation-duration:3.6s;animation-delay:1.4s"></span>
+    <span style="height:98px;animation-duration:5.8s;animation-delay:.3s"></span>
+    <span style="height:64px;animation-duration:4.3s;animation-delay:1.9s"></span>
+  </div>
+
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">☠ DarkVault</a>
+    <button class="nav-hamburger" id="nav-burger"><span></span><span></span><span></span></button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="chapters.html">📖 Story</a></li>
+      <li><a href="asylum.html">🏚 Asylum</a></li>
+      <li><a href="forest.html">🌲 Forest</a></li>
+      <li><a href="ritual.html">🕯 Ritual</a></li>
+      <li><a href="ouija.html">🔮 Ouija</a></li>
+      <li><a href="maze.html">🌀 Maze</a></li>
+      <li><a href="cursed-quiz.html">📋 Quiz</a></li>
+      <li><a href="death-clock.html">⏳ Death</a></li>
+      <li><a href="gallery.html">🖼 Gallery</a></li>
+      <li><a href="jumpscare.html">💀 Scream</a></li>
+    </ul>
+  </nav>
+
+  <section class="page-hero" style="background:radial-gradient(ellipse at 50% 80%,#180000,#000);min-height:42vh">
+    <div style="position:relative;z-index:10;text-align:center">
+      <div style="font-size:3.5rem;margin-bottom:12px;filter:drop-shadow(0 0 16px rgba(255,0,0,.5))">📋</div>
+      <h1 class="page-hero-title glitch" data-text="What Horror Are You?">What Horror Are You?</h1>
+      <p class="page-hero-sub">A completely harmless personality quiz.<br>
+        <span style="color:#bb3333">Totally safe. Nothing bad will happen.</span><br>
+        <span style="color:#444;font-size:.82rem">(Share this with friends. Don't warn them.)</span>
+      </p>
+    </div>
+  </section>
+
+  <div class="quiz-wrap">
+    <!-- QUIZ FORM -->
+    <div id="quiz-form">
+      <p class="quiz-step-label" id="step-label">Question 1 of 7</p>
+      <div class="quiz-progress-bar">
+        <div class="quiz-progress-fill" id="quiz-bar"></div>
+      </div>
+      <div class="question-card" id="question-card">
+        <p class="q-num" id="q-num">Question 01</p>
+        <p class="q-text" id="q-text">Loading…</p>
+        <div class="options-grid" id="options-grid"></div>
+      </div>
+    </div>
+
+    <!-- ANALYSIS SCREEN (fake) -->
+    <div id="analysis-screen">
+      <div style="font-size:3rem;margin-bottom:20px;animation:skullFloat 2s infinite">🔮</div>
+      <h2 style="font-family:var(--font-gothic);font-size:1.2rem;color:var(--ghost);
+        letter-spacing:4px;margin-bottom:30px">Analysing Your Soul…</h2>
+
+      <div class="analysis-bar-wrap">
+        <p class="analysis-label">Reading your aura</p>
+        <div class="analysis-bar-track"><div class="analysis-bar-fill" id="bar1"></div></div>
+      </div>
+      <div class="analysis-bar-wrap" style="margin-top:14px">
+        <p class="analysis-label">Detecting dark energy</p>
+        <div class="analysis-bar-track"><div class="analysis-bar-fill" id="bar2"></div></div>
+      </div>
+      <div class="analysis-bar-wrap" style="margin-top:14px">
+        <p class="analysis-label">Consulting the spirits</p>
+        <div class="analysis-bar-track"><div class="analysis-bar-fill" id="bar3"></div></div>
+      </div>
+      <div class="analysis-bar-wrap" style="margin-top:14px">
+        <p class="analysis-label">Calculating survival odds</p>
+        <div class="analysis-bar-track"><div class="analysis-bar-fill" id="bar4"></div></div>
+      </div>
+      <p id="analysis-msg" style="margin-top:24px;font-style:italic;color:#555;font-size:.9rem;
+        min-height:24px;transition:color .5s"></p>
+    </div>
+
+    <!-- RESULT CARD (shown briefly before scare) -->
+    <div id="result-card">
+      <span id="result-icon">💀</span>
+      <h2 id="result-title">You Are: The Shadow</h2>
+      <p id="result-text">Mysterious and terrifying. You are the darkness itself.</p>
+      <p style="font-size:.8rem;color:#333;font-style:italic">Loading full result…</p>
+    </div>
+  </div>
+
+  <footer>
+    <span class="footer-logo">☠ DarkVault</span>
+    <ul class="footer-links">
+      <li><a href="index.html">Home</a></li><li><a href="ouija.html">Ouija</a></li>
+      <li><a href="maze.html">Maze</a></li><li><a href="death-clock.html">Death Clock</a></li>
+      <li><a href="gallery.html">Gallery</a></li><li><a href="jumpscare.html">Scream Room</a></li>
+    </ul>
+    <div class="footer-divider"></div>
+    <p class="footer-copy">© 2026 DarkVault · You always knew you were cursed 😈</p>
+  </footer>
+
+  <div id="countdown-overlay"><div id="countdown-num">3</div><div id="countdown-label">YOUR RESULT IS READY…</div></div>
+  <div id="jumpscare-screen"><div id="scare-emoji">😱</div><div id="scare-text">BOO!</div></div>
+  <div id="aftermath-screen">
+    <div class="aftermath-skull">💀</div>
+    <h2 class="aftermath-title">GOTCHA! 😂</h2>
+    <p class="aftermath-msg">
+      Your result? <strong style="color:var(--crimson)">TERRIFIED.</strong><br>
+      Send this quiz to your friends. Tell them it's just a fun personality test.<br>
+      <em style="color:#ff6666">Watch them scream at the result screen.</em>
+    </p>
+    <div class="aftermath-actions">
+      <button class="btn-horror" onclick="copyPrankLink()">📋 Share The Quiz</button>
+      <button class="btn-horror btn-ghost" onclick="location.reload()">🔄 Retake Quiz</button>
+    </div>
+    <p id="copy-feedback" style="margin-top:16px;color:#55ff55;font-size:.9rem;opacity:0;transition:opacity .5s;min-height:22px"></p>
+  </div>
+
+  <script src="horror.js"></script>
+  <script>
+  const QUESTIONS = [
+    {
+      text: "You wake up at 3AM to a strange sound downstairs. What do you do?",
+      opts: [
+        {icon:'🦺',label:'Check it out immediately — you\'re not scared of anything.'},
+        {icon:'🛏',label:'Pull the covers up and pretend you heard nothing.'},
+        {icon:'📱',label:'Call someone. You\'re not going down there alone.'},
+        {icon:'🔦',label:'Grab a torch and investigate slowly, heart pounding.'}
+      ]
+    },
+    {
+      text: "You find an old photo album in the attic. Every photo is of YOU — but you've never been to the locations shown. You…",
+      opts: [
+        {icon:'🔍',label:'Study every photo carefully. You need answers.'},
+        {icon:'🗑',label:'Burn it immediately. Some things are better unknown.'},
+        {icon:'📸',label:'Post it online. If you\'re going insane, might as well document it.'},
+        {icon:'😶',label:'Sit very still for a long time, processing.'}
+      ]
+    },
+    {
+      text: "A fortune teller tells you exactly how and when you will die. Your reaction?",
+      opts: [
+        {icon:'😤',label:'Laugh it off. It\'s all nonsense.'},
+        {icon:'😰',label:'Try desperately to change it. Spend years avoiding the date.'},
+        {icon:'📅',label:'Accept it and start living differently.'},
+        {icon:'🤔',label:'Ask follow-up questions. You want every detail.'}
+      ]
+    },
+    {
+      text: "Which horror movie setting would you survive longest?",
+      opts: [
+        {icon:'🏚',label:'The abandoned asylum — lots of hiding spots.'},
+        {icon:'🌲',label:'The dark forest — you know how to navigate nature.'},
+        {icon:'🏠',label:'The haunted house — at least there\'s shelter.'},
+        {icon:'🚢',label:'The ghost ship — you\'d find a lifeboat immediately.'}
+      ]
+    },
+    {
+      text: "You start receiving texts from a number that doesn't exist. The messages describe exactly what you\'re doing right now. You…",
+      opts: [
+        {icon:'📴',label:'Turn off your phone and throw it in a drawer.'},
+        {icon:'💬',label:'Text back. See what happens.'},
+        {icon:'🚔',label:'Call the police, even though you know they won\'t help.'},
+        {icon:'🪟',label:'Check every window in your house. Immediately.'}
+      ]
+    },
+    {
+      text: "Choose your ideal Halloween costume:",
+      opts: [
+        {icon:'👻',label:'Classic ghost — timeless and simple.'},
+        {icon:'🤡',label:'Terrifying clown — you enjoy the reaction.'},
+        {icon:'💀',label:'The Grim Reaper — dramatic and inevitable.'},
+        {icon:'😈',label:'A demon — nothing says horror like the genuine article.'}
+      ]
+    },
+    {
+      text: "Final question: Right now, in this moment, do you feel like something is watching you?",
+      opts: [
+        {icon:'😂',label:'No. Absolutely not. This is just a silly quiz.'},
+        {icon:'😬',label:'...Maybe a little. You glanced over your shoulder just now.'},
+        {icon:'😨',label:'Yes. Yes you do. And you can\'t shake the feeling.'},
+        {icon:'🙈',label:'You\'ve closed this tab three times already. You keep coming back.'}
+      ]
+    }
+  ];
+
+  const RESULTS = [
+    {icon:'👹',title:'The Demon',text:'Ancient, relentless, and deeply unsettling. You are the kind of horror that doesn\'t just scare people — you change them.'},
+    {icon:'👻',title:'The Ghost',text:'You linger. You haunt. People feel you before they see you. Your presence leaves a mark that never fully fades.'},
+    {icon:'🕷️',title:'The Creeper',text:'Patient, silent, and always just out of sight. By the time they notice you, it\'s already too late.'},
+    {icon:'💀',title:'The Reaper',text:'Inevitable. Unstoppable. You are the end of things. Nobody outruns you forever.'},
+  ];
+
+  let currentQ = 0;
+  let answers  = [];
+
+  function showQuestion(n) {
+    const q   = QUESTIONS[n];
+    const pct = Math.round((n / QUESTIONS.length) * 100);
+
+    document.getElementById('quiz-bar').style.width   = pct + '%';
+    document.getElementById('step-label').textContent = `Question ${n+1} of ${QUESTIONS.length}`;
+    document.getElementById('q-num').textContent      = `Question ${String(n+1).padStart(2,'0')}`;
+    document.getElementById('q-text').textContent     = q.text;
+
+    const grid = document.getElementById('options-grid');
+    grid.innerHTML = '';
+    q.opts.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'opt-btn';
+      btn.innerHTML = `<span class="opt-icon">${opt.icon}</span><span class="opt-label">${opt.label}</span>`;
+      btn.onclick = () => selectOption(i, btn);
+      grid.appendChild(btn);
+    });
+
+    const card = document.getElementById('question-card');
+    card.classList.remove('visible');
+    setTimeout(() => card.classList.add('visible'), 80);
+
+    HorrorAudio.unlock();
+    if (n > 0) HorrorAudio.playTone(60 + n * 10, 0.3, 'sine', 0.03);
+  }
+
+  function selectOption(i, btn) {
+    // Visual feedback
+    document.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    answers.push(i);
+    HorrorAudio.playTone(440, 0.15, 'sine', 0.05);
+
+    setTimeout(() => {
+      currentQ++;
+      if (currentQ < QUESTIONS.length) {
+        showQuestion(currentQ);
+      } else {
+        showAnalysis();
+      }
+    }, 500);
+  }
+
+  function showAnalysis() {
+    document.getElementById('quiz-form').style.display   = 'none';
+    document.getElementById('analysis-screen').style.display = 'block';
+    HorrorAudio.playTone(50, 2, 'sawtooth', 0.04);
+
+    const msgs = [
+      'Interesting choices…',
+      'The spirits are taking notice…',
+      'Something is reading your answers…',
+      'Your result has been decided.',
+      'Preparing your fate…'
+    ];
+    let mi = 0;
+    const msgEl = document.getElementById('analysis-msg');
+
+    // Animate bars
+    const bars = ['bar1','bar2','bar3','bar4'];
+    bars.forEach((id, i) => {
+      setTimeout(() => {
+        const b = document.getElementById(id);
+        b.style.width = '100%';
+        mi = Math.min(mi + 1, msgs.length - 1);
+        msgEl.textContent = msgs[mi];
+        msgEl.style.color = i >= 2 ? '#bb3333' : '#555';
+        HorrorAudio.playTone(80 + i * 20, 0.4, 'sine', 0.03);
+        if (i === 2) HorrorFX.shake(4, 300);
+      }, i * 900 + 400);
+    });
+
+    // After fake analysis, show result card briefly, THEN jumpscare
+    setTimeout(() => {
+      document.getElementById('analysis-screen').style.display = 'none';
+      const r = RESULTS[answers.reduce((a, b) => a + b, 0) % RESULTS.length];
+      document.getElementById('result-icon').textContent  = r.icon;
+      document.getElementById('result-title').textContent = 'You Are: ' + r.title;
+      document.getElementById('result-text').textContent  = r.text;
+      document.getElementById('result-card').style.display = 'block';
+      HorrorFX.shake(6, 400);
+      HorrorAudio.playTone(40, 1, 'sawtooth', 0.06);
+
+      // THE JUMPSCARE — after they lean in to read their result
+      setTimeout(() => {
+        HorrorScare.run(r.icon, 'YOUR RESULT IS READY! 😱');
+      }, 2200);
+    }, bars.length * 900 + 1400);
+  }
+
+  // Init
+  document.addEventListener('DOMContentLoaded', () => { showQuestion(0); });
+  </script>
+</body>
+</html>

@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Killer — DarkVault</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=Special+Elite&family=Cinzel+Decorative:wght@400;700;900&family=UnifrakturMaguntia&display=swap" rel="stylesheet"/>
+  <style>
+    body { background:#020000; }
+    /* Pulsing red bg */
+    .killer-bg {
+      position:fixed; inset:0;
+      background:radial-gradient(ellipse at 50% 50%, #1a0000 0%, #000 70%);
+      animation:kBg 3s ease-in-out infinite alternate;
+      pointer-events:none; z-index:0;
+    }
+    @keyframes kBg {
+      0%  { background:radial-gradient(ellipse at 50% 50%,#1a0000,#000); }
+      100%{ background:radial-gradient(ellipse at 50% 50%,#260000,#030000); }
+    }
+
+    /* ── Killer profile ── */
+    .killer-profile {
+      max-width:760px; margin:0 auto; padding:40px 20px;
+      position:relative; z-index:10;
+    }
+    .kp-card {
+      border:2px solid rgba(139,0,0,.6);
+      background:rgba(10,0,0,.85);
+      border-radius:4px; padding:40px 40px 36px;
+      box-shadow:0 0 80px rgba(255,0,0,.12), inset 0 0 30px rgba(0,0,0,.5);
+      position:relative; overflow:hidden;
+    }
+    .kp-card::before {
+      content:''; position:absolute; inset:0;
+      background:repeating-linear-gradient(
+        -45deg,transparent,transparent 40px,
+        rgba(80,0,0,.03) 40px,rgba(80,0,0,.03) 41px
+      );
+      pointer-events:none;
+    }
+    .kp-header {
+      display:flex; gap:30px; align-items:flex-start;
+      margin-bottom:32px; flex-wrap:wrap;
+    }
+    .kp-avatar {
+      width:120px; height:120px; flex-shrink:0;
+      border:2px solid var(--blood); border-radius:4px;
+      background:rgba(30,0,0,.8);
+      display:flex; align-items:center; justify-content:center;
+      font-size:5rem;
+      box-shadow:0 0 30px rgba(255,0,0,.3);
+      animation:avatarPulse 2s ease-in-out infinite;
+      position:relative;
+    }
+    @keyframes avatarPulse {
+      0%,100%{ box-shadow:0 0 20px rgba(255,0,0,.2); }
+      50%    { box-shadow:0 0 50px rgba(255,0,0,.7); }
+    }
+    .kp-avatar::after {
+      content:'WANTED'; position:absolute; bottom:0; left:0; right:0;
+      background:rgba(139,0,0,.8); font-family:var(--font-gothic);
+      font-size:.5rem; letter-spacing:3px; color:#fff; text-align:center;
+      padding:4px 0; text-transform:uppercase;
+    }
+    .kp-info { flex:1; min-width:200px; }
+    .kp-file-tag {
+      font-family:var(--font-gothic); font-size:.6rem; letter-spacing:3px;
+      color:var(--blood); text-transform:uppercase; margin-bottom:8px;
+    }
+    .kp-name {
+      font-family:var(--font-gothic); font-size:clamp(1.5rem,4vw,2.5rem);
+      color:var(--ghost); margin-bottom:6px;
+      text-shadow:0 0 20px rgba(255,0,0,.4);
+    }
+    .kp-alias { font-size:.88rem; color:#666; font-style:italic; margin-bottom:16px; }
+    .kp-stats {
+      display:grid; grid-template-columns:1fr 1fr; gap:8px;
+    }
+    .ks-item { border:1px solid #1a0000; padding:8px 12px; border-radius:2px; background:rgba(5,0,0,.5); }
+    .ks-label { font-family:var(--font-gothic); font-size:.55rem; letter-spacing:2px; color:#330000; text-transform:uppercase; margin-bottom:2px; }
+    .ks-val { font-size:.85rem; color:var(--crimson); }
+
+    /* ── Victim cards ── */
+    .victims-title {
+      font-family:var(--font-gothic); font-size:.7rem; letter-spacing:4px;
+      color:var(--blood); text-transform:uppercase; margin-bottom:20px;
+      display:flex; align-items:center; gap:12px;
+    }
+    .victims-title::after { content:''; flex:1; height:1px; background:linear-gradient(90deg,var(--blood),transparent); }
+
+    .victims-grid {
+      display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:12px;
+      margin-bottom:36px;
+    }
+    .victim-card {
+      border:1px solid #1a0000; background:rgba(8,0,0,.6);
+      border-radius:3px; padding:16px 14px; text-align:center;
+      transition:var(--transition); position:relative; overflow:hidden;
+    }
+    .victim-card:hover {
+      border-color:var(--blood);
+      box-shadow:0 0 20px rgba(255,0,0,.2);
+      transform:translateY(-3px);
+    }
+    .victim-card::before {
+      content:''; position:absolute; inset:0;
+      background:linear-gradient(135deg,rgba(80,0,0,.08),transparent);
+      opacity:0; transition:var(--transition);
+    }
+    .victim-card:hover::before { opacity:1; }
+    .vc-emoji { font-size:2.8rem; display:block; margin-bottom:8px;
+      filter:grayscale(.5); transition:var(--transition); }
+    .victim-card:hover .vc-emoji { filter:grayscale(0) drop-shadow(0 0 10px rgba(255,0,0,.6)); }
+    .vc-num { font-family:var(--font-gothic); font-size:.55rem; letter-spacing:2px;
+               color:var(--blood); text-transform:uppercase; margin-bottom:3px; }
+    .vc-name { font-family:var(--font-gothic); font-size:.72rem; color:var(--ghost); margin-bottom:4px; }
+    .vc-date { font-size:.68rem; color:#333; }
+    .vc-cause { font-size:.7rem; color:#6a1a1a; font-style:italic; margin-top:4px; }
+    /* Strikethrough effect on victim name */
+    .vc-name.dead { text-decoration:line-through; text-decoration-color:var(--blood); }
+
+    /* ── Death countdown ── */
+    .death-counter-wrap {
+      border:1px solid rgba(139,0,0,.5); border-radius:4px;
+      padding:28px; background:rgba(12,0,0,.7);
+      text-align:center; margin-bottom:32px;
+      box-shadow:0 0 40px rgba(255,0,0,.1), inset 0 0 20px rgba(0,0,0,.4);
+      animation:dcPulse 2s ease-in-out infinite;
+    }
+    @keyframes dcPulse {
+      0%,100%{ box-shadow:0 0 30px rgba(255,0,0,.1); }
+      50%    { box-shadow:0 0 60px rgba(255,0,0,.4); }
+    }
+    .dc-label {
+      font-family:var(--font-gothic); font-size:.65rem; letter-spacing:4px;
+      color:var(--blood); text-transform:uppercase; margin-bottom:12px;
+    }
+    .dc-digits {
+      display:flex; justify-content:center; align-items:center; gap:8px;
+      flex-wrap:wrap; margin-bottom:12px;
+    }
+    .dc-unit { text-align:center; min-width:60px; }
+    .dc-num {
+      font-family:var(--font-horror); font-size:clamp(2rem,6vw,3.5rem);
+      color:var(--neon-red); text-shadow:0 0 20px var(--neon-red), 0 0 40px rgba(255,0,0,.4);
+      line-height:1; display:block;
+    }
+    .dc-unit-label { font-family:var(--font-gothic); font-size:.5rem; letter-spacing:2px; color:#330000; text-transform:uppercase; margin-top:4px; }
+    .dc-sep { font-family:var(--font-horror); font-size:2rem; color:var(--blood); align-self:flex-start; margin-top:4px; }
+    .dc-msg { font-size:.82rem; color:#553333; font-style:italic; animation:textFlicker 4s infinite; }
+
+    /* ── Next victim banner ── */
+    .next-victim-banner {
+      border:2px solid var(--blood); background:rgba(15,0,0,.9);
+      border-radius:4px; padding:24px 28px; margin-bottom:28px;
+      animation:nvPulse 1.5s ease-in-out infinite;
+      position:relative; overflow:hidden;
+    }
+    @keyframes nvPulse {
+      0%,100%{ border-color:rgba(139,0,0,.6); box-shadow:0 0 20px rgba(255,0,0,.1); }
+      50%    { border-color:var(--neon-red); box-shadow:0 0 50px rgba(255,0,0,.5); }
+    }
+    .next-victim-banner::before {
+      content:'🩸 ALERT 🩸'; position:absolute; top:-1px; left:20px;
+      font-family:var(--font-gothic); font-size:.55rem; letter-spacing:3px;
+      color:var(--neon-red); background:rgba(15,0,0,.95); padding:0 8px;
+      text-transform:uppercase;
+    }
+    .nv-inner { display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
+    .nv-icon  { font-size:3.5rem; flex-shrink:0; animation:skullFloat 2s ease-in-out infinite; }
+    .nv-text  { flex:1; min-width:200px; }
+    .nv-label { font-family:var(--font-gothic); font-size:.6rem; letter-spacing:3px;
+                 color:var(--blood); text-transform:uppercase; margin-bottom:6px; }
+    .nv-name  { font-family:var(--font-gothic); font-size:1.4rem; color:var(--ghost);
+                 margin-bottom:4px; text-shadow:0 0 10px rgba(255,0,0,.3); }
+    .nv-sub   { font-size:.82rem; color:#777; font-style:italic; }
+
+    /* ── Story section ── */
+    .killer-story {
+      border-left:3px solid var(--blood);
+      background:rgba(8,0,0,.5); padding:28px 28px 24px;
+      border-radius:0 4px 4px 0; margin-bottom:24px;
+      box-shadow:-3px 0 16px rgba(139,0,0,.15);
+    }
+    .ks-tag { font-family:var(--font-gothic); font-size:.6rem; letter-spacing:3px;
+               color:var(--blood); text-transform:uppercase; margin-bottom:8px; }
+    .ks-heading { font-family:var(--font-gothic); font-size:1.1rem; color:var(--ghost);
+                   margin-bottom:12px; text-shadow:0 0 10px rgba(255,0,0,.2); }
+    .ks-para { font-size:.88rem; color:#999; line-height:1.9; margin-bottom:12px; }
+    .ks-para .red { color:var(--crimson); font-style:italic; }
+    .ks-para .ur  { color:#cc8844; font-style:italic; font-size:.85rem; }
+
+    /* ── YOU ARE NEXT screen ── */
+    #you-are-next {
+      position:fixed; inset:0; background:#000;
+      display:none; flex-direction:column;
+      align-items:center; justify-content:center;
+      z-index:6500; text-align:center; padding:20px;
+    }
+    #you-are-next.show { display:flex; animation:yanFlash .12s step-end infinite; }
+    @keyframes yanFlash {
+      0%,100%{ background:#0a0000; }
+      50%    { background:#1a0000; }
+    }
+    .yan-emoji { font-size:clamp(8rem,25vw,20rem); animation:scareZoom .3s ease-out forwards; line-height:1; }
+    .yan-title {
+      font-family:var(--font-horror); font-size:clamp(3rem,10vw,8rem);
+      color:var(--neon-red); text-shadow:0 0 40px var(--neon-red),4px 4px 0 #000;
+      animation:scareShake .1s ease-in-out infinite; margin-top:16px;
+    }
+    .yan-sub {
+      font-family:var(--font-gothic); font-size:clamp(.8rem,2vw,1.2rem);
+      color:#ff6666; letter-spacing:4px; text-transform:uppercase; margin-top:8px;
+    }
+    .yan-ur {
+      font-family:'Special Elite',cursive; font-size:clamp(.9rem,2.5vw,1.4rem);
+      color:#cc3333; font-style:italic; margin-top:6px;
+    }
+
+    @media(max-width:500px){ .kp-card{padding:24px 18px 20px;} .kp-header{gap:16px;} .kp-avatar{width:90px;height:90px;font-size:3.5rem;} }
+  </style>
+</head>
+<body>
+  <div class="killer-bg"></div>
+  <div id="flicker"></div>
+  <div class="vignette"></div>
+  <div id="particles"></div>
+  <div id="cursor"></div>
+  <div id="cursor-dot"></div>
+  <div class="blood-drip">
+    <span style="height:70px;animation-duration:4.2s"></span>
+    <span style="height:100px;animation-duration:5.3s;animation-delay:.6s"></span>
+    <span style="height:55px;animation-duration:3.8s;animation-delay:1.3s"></span>
+    <span style="height:120px;animation-duration:6.1s;animation-delay:.2s"></span>
+    <span style="height:80px;animation-duration:4.7s;animation-delay:1.9s"></span>
+    <span style="height:95px;animation-duration:5.5s;animation-delay:.8s"></span>
+    <span style="height:60px;animation-duration:4s;animation-delay:2.2s"></span>
+    <span style="height:110px;animation-duration:5.8s;animation-delay:.4s"></span>
+    <span style="height:75px;animation-duration:4.5s;animation-delay:1.6s"></span>
+    <span style="height:88px;animation-duration:5.1s;animation-delay:.1s"></span>
+  </div>
+
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">☠ DarkVault</a>
+    <button class="nav-hamburger" id="nav-burger"><span></span><span></span><span></span></button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="login.html">🔐 Login</a></li>
+      <li><a href="urdu-story.html">📜 Kahani</a></li>
+      <li><a href="killer.html">🔪 Killer</a></li>
+      <li><a href="chapters.html">📖 Story</a></li>
+      <li><a href="asylum.html">🏚 Asylum</a></li>
+      <li><a href="ritual.html">🕯 Ritual</a></li>
+      <li><a href="ouija.html">🔮 Ouija</a></li>
+      <li><a href="maze.html">🌀 Maze</a></li>
+      <li><a href="jumpscare.html">💀 Scream</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="page-hero" style="background:radial-gradient(ellipse at 50% 70%,#2a0000,#000);min-height:55vh">
+    <div style="position:relative;z-index:10;text-align:center">
+      <div style="font-size:5rem;margin-bottom:14px;filter:drop-shadow(0 0 30px rgba(255,0,0,.8));animation:skullFloat 2s ease-in-out infinite">🔪</div>
+      <h1 class="page-hero-title glitch" data-text="The Killer">The Killer</h1>
+      <p class="page-hero-sub">
+        He has never been caught.<br>
+        <span style="color:var(--crimson)">Woh kabhi nahi pakra gaya.</span><br>
+        <span style="color:#bb3333;font-size:.9rem">His next victim has already been chosen. — Aagla shikaar choose ho chuka hai.</span>
+      </p>
+    </div>
+  </section>
+
+  <div class="killer-profile">
+
+    <!-- KILLER FILE -->
+    <div class="kp-card reveal">
+      <div class="kp-header">
+        <div class="kp-avatar">🔪</div>
+        <div class="kp-info">
+          <p class="kp-file-tag">⚠ CLASSIFIED CASE FILE — ACTIVE THREAT</p>
+          <h2 class="kp-name">Subject: "Hargrove"</h2>
+          <p class="kp-alias">Also known as: "The Shadow", "3:14", "Woh Jo Andheron Mein Rehta Hai"</p>
+          <div class="kp-stats">
+            <div class="ks-item"><p class="ks-label">Status</p><span class="ks-val" style="color:var(--neon-red)">AT LARGE 🔴</span></div>
+            <div class="ks-item"><p class="ks-label">Victims</p><span class="ks-val">5 Confirmed</span></div>
+            <div class="ks-item"><p class="ks-label">Last Seen</p><span class="ks-val">October 14, 1993</span></div>
+            <div class="ks-item"><p class="ks-label">Current Location</p><span class="ks-val" style="color:var(--blood)">UNKNOWN</span></div>
+            <div class="ks-item"><p class="ks-label">Method</p><span class="ks-val">Andheri Raat / 3:14 AM</span></div>
+            <div class="ks-item"><p class="ks-label">Threat Level</p><span class="ks-val" style="color:var(--neon-red)">EXTREME ☠</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="killer-story">
+        <p class="ks-tag">Subject Background — Taruf</p>
+        <h3 class="ks-heading">Who Is Hargrove?</h3>
+        <p class="ks-para">Hargrove moved into 7 Gallows Road in 1962. Neighbours described him as quiet, polite, and deeply unsettling in ways they could never articulate. He worked from home. He never had visitors. Lights in his house burned all night, every night.
+          <span class="ur">Hargrove 1962 mein 7 Gallows Road mein aaya. Parosi kehte the — khamosh, shareef, lekin andar se kuch ajeeb. Woh ghar se kaam karta tha. Koi nahi aata tha. Ghar ki roshniyan raat bhar jali rehti thin.</span>
+        </p>
+        <p class="ks-para">Between 1962 and 1993, five people entered the house. None left.
+          <span class="red">Records show all five victims were found in the basement. Below the floor. Arranged in a circle.</span>
+          <span class="ur">1962 se 1993 ke darmiyan, paanch log ghar mein gaye. Koi nahi nikla. Records kehte hain — sab paanch log tah khane mein mile. Farsh ke neeche. Daaire mein.</span>
+        </p>
+        <p class="ks-para">On October 14, 1993, police forced entry. Hargrove was gone.
+          <span class="red">His diary's final entry: "I hear them calling. Time to find a new house. A new family."</span>
+          <span class="ur">14 October 1993 ko police ne darwaaza toda. Hargrove ja chuka tha. Diary ki aakhri satar: "Mujhe awaazein aati hain. Naya ghar dhundna hai. Naya khaandaan."</span>
+        </p>
+      </div>
+
+      <!-- Victims -->
+      <p class="victims-title">☠ Confirmed Victims — Yaqeeni Shikaars</p>
+      <div class="victims-grid">
+        <div class="victim-card">
+          <span class="vc-emoji">👨</span>
+          <p class="vc-num">Victim #1</p>
+          <p class="vc-name dead">Thomas W.</p>
+          <p class="vc-date">March 3, 1971</p>
+          <p class="vc-cause">Disappeared at night</p>
+        </div>
+        <div class="victim-card">
+          <span class="vc-emoji">👩</span>
+          <p class="vc-num">Victim #2</p>
+          <p class="vc-name dead">Sarah M.</p>
+          <p class="vc-date">July 19, 1978</p>
+          <p class="vc-cause">Never found</p>
+        </div>
+        <div class="victim-card">
+          <span class="vc-emoji">👧</span>
+          <p class="vc-num">Victim #3</p>
+          <p class="vc-name dead">Emma H.</p>
+          <p class="vc-date">Oct 14, 1993</p>
+          <p class="vc-cause">Age 8 — The Girl</p>
+        </div>
+        <div class="victim-card">
+          <span class="vc-emoji">👦</span>
+          <p class="vc-num">Victim #4</p>
+          <p class="vc-name dead">James H.</p>
+          <p class="vc-date">Oct 14, 1993</p>
+          <p class="vc-cause">Age 10 — The Boy</p>
+        </div>
+        <div class="victim-card">
+          <span class="vc-emoji">👴</span>
+          <p class="vc-num">Victim #5</p>
+          <p class="vc-name dead">Edward H.</p>
+          <p class="vc-date">Oct 14, 1993</p>
+          <p class="vc-cause">Father — basement</p>
+        </div>
+        <div class="victim-card" style="border-color:rgba(139,0,0,.5);animation:nvPulse 1.5s ease-in-out infinite">
+          <span class="vc-emoji">❓</span>
+          <p class="vc-num" style="color:var(--neon-red)">Victim #6</p>
+          <p class="vc-name" style="color:var(--neon-red)">YOU?</p>
+          <p class="vc-date" id="victim6-date" style="color:var(--blood)">Loading...</p>
+          <p class="vc-cause" style="color:var(--blood)">Tum? — Tonight?</p>
+        </div>
+      </div>
+
+      <!-- YOU ARE NEXT banner -->
+      <div class="next-victim-banner">
+        <div class="nv-inner">
+          <div class="nv-icon">⚠️</div>
+          <div class="nv-text">
+            <p class="nv-label">🔴 Next Target Identified</p>
+            <p class="nv-name" id="next-name">Scanning visitor profile...</p>
+            <p class="nv-sub" id="next-sub">Tumhara profile check ho raha hai...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Death countdown -->
+      <div class="death-counter-wrap">
+        <p class="dc-label">⏳ Time Until He Arrives — Woh Aane Wala Hai</p>
+        <div class="dc-digits">
+          <div class="dc-unit"><span class="dc-num" id="dc-h">00</span><span class="dc-unit-label">Hours</span></div>
+          <span class="dc-sep">:</span>
+          <div class="dc-unit"><span class="dc-num" id="dc-m">00</span><span class="dc-unit-label">Minutes</span></div>
+          <span class="dc-sep">:</span>
+          <div class="dc-unit"><span class="dc-num" id="dc-s">00</span><span class="dc-unit-label">Seconds</span></div>
+        </div>
+        <p class="dc-msg" id="dc-msg">Calculating time of arrival... — Pohonchne ka waqt calculate ho raha hai...</p>
+      </div>
+
+      <!-- Trigger -->
+      <div style="text-align:center;margin-top:8px">
+        <button class="btn-horror" onclick="triggerYouAreNext()" style="padding:20px 56px;font-size:1.1rem">
+          🔪 Woh Aa Gaya — HE'S HERE
+        </button>
+        <p style="margin-top:12px;font-size:.78rem;color:#330000;font-style:italic">
+          Click karo agar himmat hai. — Click if you dare.
+        </p>
+      </div>
+    </div>
+
+    <!-- Extra horror story section -->
+    <div style="margin-top:48px">
+      <div class="killer-story reveal">
+        <p class="ks-tag">His Method — Uska Tarika</p>
+        <h3 class="ks-heading">How He Chooses</h3>
+        <p class="ks-para">
+          He does not choose at random. Investigators believe he watches first — sometimes for weeks.
+          He learns routines. Sleep times. Fears.
+          <span class="ur">Woh randomly nahi chunti. Investigators ka kehna hai pehle woh dekhta hai — kabhi kabhi haftoon tak. Woh aadat seekhta hai. Neend ka waqt. Darr.</span>
+        </p>
+        <p class="ks-para">
+          Entry is always at 3:14 AM. Always through a door that was locked.
+          <span class="red">No signs of forced entry have ever been found.</span>
+          <span class="ur">Andar aana hamesha raat 3:14 baje. Hamesha kisi band darwaaze se. Kabhi toota hua darwaaza nahi mila.</span>
+        </p>
+        <p class="ks-para">
+          The last thing victims see: their own reflection moving independently in a nearby mirror.
+          <span class="red">Then the lights go out. Then the knocking begins.</span>
+          <span class="ur">Shikaaron ka aakhri manzar: apni parchhain — jo unke bina hil rahi hoti hai. Phir roshni bujhti hai. Phir dastak shuru hoti hai.</span>
+        </p>
+      </div>
+
+      <div class="killer-story reveal" style="margin-top:24px">
+        <p class="ks-tag">Active Warning — Khabardar</p>
+        <h3 class="ks-heading">If You See Him</h3>
+        <p class="ks-para">
+          Do not run. Running confirms your location.
+          Do not speak. He listens for voices.
+          Do not look in mirrors after midnight.
+          <span class="ur">Bhago mat. Bhaagna tumhari jagah bata deta hai. Baat mat karo. Woh awaazein sunta hai. Aadhi raat ke baad aaine mein mat dekho.</span>
+        </p>
+        <p class="ks-para">
+          <span class="red">If you are reading this at night, alone — he may already be watching.</span>
+          <span class="ur">Agar tum ye raat ko akele parh rahe ho — woh shayad pehle se dekh raha hai.</span>
+        </p>
+      </div>
+
+      <!-- Final scare -->
+      <div style="text-align:center;padding:40px 20px;border:1px dashed rgba(139,0,0,.3);border-radius:4px;background:rgba(5,0,0,.5);margin-top:32px">
+        <p style="font-size:.88rem;color:#555;font-style:italic;margin-bottom:16px">
+          Ek aakhri manzar. Agar dekh sako toh. — One last image. If you can bear it.
+        </p>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center">
+          <button class="btn-horror" onclick="HorrorScare.run('🔪','WOH TUMHARE PEECHE HAI!')" style="padding:14px 36px">
+            🔪 Peechay Dekho!
+          </button>
+          <button class="btn-horror btn-ghost" onclick="copyPrankLink()" style="padding:14px 28px">
+            📋 Share Karo
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span class="footer-logo">☠ DarkVault</span>
+    <ul class="footer-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="urdu-story.html">Kahani</a></li>
+      <li><a href="chapters.html">Story</a></li>
+      <li><a href="jumpscare.html">Scream Room</a></li>
+    </ul>
+    <div class="footer-divider"></div>
+    <p class="footer-copy">© 2026 DarkVault · Woh aa raha hai 😈</p>
+  </footer>
+
+  <!-- YOU ARE NEXT SCREEN -->
+  <div id="you-are-next">
+    <div class="yan-emoji">🔪</div>
+    <div class="yan-title">YOU ARE NEXT</div>
+    <div class="yan-sub">TUM AGLE HO — IT FOUND YOU</div>
+    <div class="yan-ur">Woh tumhare ghar ko jaanta hai. Raat 3:14 baje tayaar rehna.</div>
+  </div>
+
+  <div id="countdown-overlay"><div id="countdown-num">3</div><div id="countdown-label">WOH AA RAHA HAI…</div></div>
+  <div id="jumpscare-screen"><div id="scare-emoji">🔪</div><div id="scare-text">BOO!</div></div>
+  <div id="aftermath-screen">
+    <div class="aftermath-skull">💀</div>
+    <h2 class="aftermath-title">GOTCHA! 😂</h2>
+    <p class="aftermath-msg">
+      Killer ne tumhein pakad liya! Ab ye page apne doston ko bhejo.<br>
+      <em style="color:#ff6666">Unhe bolo: "Yaar ek horror case file hai — dekho toh!"</em>
+    </p>
+    <div class="aftermath-actions">
+      <button class="btn-horror" onclick="copyPrankLink()">📋 Share Karo</button>
+      <button class="btn-horror btn-ghost" onclick="closeAftermath()">🔄 Wapas Jao</button>
+      <a href="urdu-story.html" class="btn-horror btn-ghost">📜 Kahani</a>
+    </div>
+    <p id="copy-feedback" style="margin-top:16px;color:#55ff55;font-size:.9rem;opacity:0;transition:opacity .5s;min-height:22px"></p>
+  </div>
+
+  <script src="horror.js"></script>
+  <script>
+    /* ── Victim #6 date = today ── */
+    const today = new Date();
+    document.getElementById('victim6-date').textContent =
+      today.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+
+    /* ── "Next victim" typing effect ── */
+    const nameEl = document.getElementById('next-name');
+    const subEl  = document.getElementById('next-sub');
+    const names  = ['Scanning...','Identifying...','Profile found.','YOU.'];
+    const subs   = ['Tumhara profile check ho raha hai...','Tumhara IP mila...','Location confirm...','TUM HO AGLE. 😈'];
+    let ni = 0;
+    const nameIv = setInterval(() => {
+      nameEl.textContent = names[ni];
+      subEl.textContent  = subs[ni];
+      if (ni === names.length - 1) {
+        clearInterval(nameIv);
+        nameEl.style.color = 'var(--neon-red)';
+        subEl.style.color  = 'var(--blood)';
+        HorrorAudio.unlock();
+        HorrorAudio.playTone(50, 1, 'sawtooth', 0.05);
+        HorrorFX.shake(5, 300);
+      }
+      ni++;
+    }, 1200);
+
+    /* ── Death countdown — random time 1-4 hours ── */
+    let totalSecs = Math.floor(Math.random() * 10800) + 3600;
+    const dcH = document.getElementById('dc-h');
+    const dcM = document.getElementById('dc-m');
+    const dcS = document.getElementById('dc-s');
+    const dcMsg = document.getElementById('dc-msg');
+    const urgencyMsgs = [
+      'Calculating time of arrival... — Pohonchne ka waqt calculate ho raha hai...',
+      'Signal detected nearby. — Qareeb signal mila.',
+      'He is moving. — Woh chal raha hai.',
+      'Getting closer. — Qareebi aa raha hai.',
+      'Very close now. — Bahut qareeb.',
+      'HE IS OUTSIDE. — WOH BAHAR HAI.',
+    ];
+    const dcIv = setInterval(() => {
+      if (totalSecs <= 0) { clearInterval(dcIv); dcMsg.textContent = 'TOO LATE — BAHUT DER HO GAYI'; dcMsg.style.color='var(--neon-red)'; return; }
+      totalSecs--;
+      const h = Math.floor(totalSecs/3600);
+      const m = Math.floor((totalSecs%3600)/60);
+      const s = totalSecs%60;
+      dcH.textContent = String(h).padStart(2,'0');
+      dcM.textContent = String(m).padStart(2,'0');
+      dcS.textContent = String(s).padStart(2,'0');
+      // Escalate messages as time drops
+      const progress = 1 - (totalSecs / (h*3600+m*60+s+totalSecs));
+      const mi = Math.min(Math.floor(progress * urgencyMsgs.length), urgencyMsgs.length-1);
+      dcMsg.textContent = urgencyMsgs[Math.floor(totalSecs/1800)] || urgencyMsgs[urgencyMsgs.length-1];
+      // Random heartbeat every 30s
+      if (totalSecs % 30 === 0) HorrorAudio.playHeartbeat(1);
+    }, 1000);
+
+    /* ── YOU ARE NEXT trigger ── */
+    function triggerYouAreNext() {
+      HorrorAudio.unlock();
+      HorrorAudio.playScream();
+      HorrorFX.shake(20, 600);
+      const yanEl = document.getElementById('you-are-next');
+      yanEl.classList.add('show');
+      // After 3 seconds transition to aftermath
+      setTimeout(() => {
+        yanEl.classList.remove('show');
+        document.getElementById('aftermath-screen').classList.add('show');
+      }, 3500);
+    }
+
+    /* ── Random ambient scares on this page ── */
+    setTimeout(() => {
+      HorrorAudio.unlock();
+      HorrorAudio.playCreak();
+      HorrorFX.shake(4, 300);
+    }, 8000);
+
+    setTimeout(() => {
+      HorrorFX.flash('rgba(255,0,0,0.08)', 200);
+      HorrorAudio.playWhisper();
+    }, 15000);
+  </script>
+</body>
+</html>

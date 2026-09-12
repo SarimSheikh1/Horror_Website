@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login — DarkVault · At Your Own Risk</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=Special+Elite&family=Cinzel+Decorative:wght@400;700;900&family=UnifrakturMaguntia&display=swap" rel="stylesheet"/>
+  <style>
+    body { background:#020002; }
+    .login-bg {
+      position:fixed; inset:0;
+      background:radial-gradient(ellipse at 50% 40%, #0d0005 0%, #000 70%);
+      animation:lbg 8s ease-in-out infinite alternate;
+      pointer-events:none; z-index:0;
+    }
+    @keyframes lbg {
+      0%  { background:radial-gradient(ellipse at 50% 40%,#0d0005,#000); }
+      100%{ background:radial-gradient(ellipse at 50% 40%,#160008,#020002); }
+    }
+
+    /* ── Toggle tabs ── */
+    .auth-tabs {
+      display:flex; gap:0; max-width:480px; margin:0 auto 0;
+    }
+    .auth-tab {
+      flex:1; padding:12px; font-family:var(--font-gothic); font-size:.65rem;
+      letter-spacing:3px; text-transform:uppercase; text-align:center;
+      border:1px solid rgba(80,0,80,.4); background:rgba(8,0,10,.6);
+      color:#4a1a4a; transition:var(--transition); cursor:pointer;
+    }
+    .auth-tab.active {
+      background:rgba(80,0,100,.25); color:#cc44cc;
+      border-color:#880088; box-shadow:0 0 14px rgba(160,0,180,.2);
+    }
+    .auth-tab:first-child { border-radius:4px 0 0 4px; }
+    .auth-tab:last-child  { border-radius:0 4px 4px 0; }
+
+    /* ── Card ── */
+    .auth-card {
+      max-width:480px; margin:0 auto;
+      border:1px solid rgba(80,0,80,.5);
+      background:rgba(8,0,10,.85);
+      border-radius:0 0 6px 6px;
+      padding:36px 36px 32px;
+      box-shadow:0 0 60px rgba(120,0,140,.15), inset 0 0 30px rgba(0,0,0,.5);
+      position:relative; overflow:hidden;
+    }
+    .auth-card::before {
+      content:'';position:absolute;inset:0;
+      background:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(60,0,80,.03) 40px,rgba(60,0,80,.03) 41px);
+      pointer-events:none;
+    }
+
+    /* Warning ribbon */
+    .risk-ribbon {
+      background:linear-gradient(135deg,rgba(80,0,0,.6),rgba(40,0,40,.6));
+      border:1px solid rgba(139,0,0,.5); border-radius:4px;
+      padding:12px 16px; margin-bottom:24px;
+      display:flex; align-items:center; gap:12px;
+      animation:warnPulse 2.5s ease-in-out infinite;
+    }
+    .risk-ribbon .ri { font-size:1.4rem; flex-shrink:0; animation:warnShake 1s ease-in-out infinite; }
+    .risk-ribbon p { font-size:.78rem; color:#ff6666; line-height:1.6; }
+    .risk-ribbon strong { color:#ff3333; }
+
+    /* Form fields */
+    .field { margin-bottom:18px; }
+    .field label {
+      display:block; font-family:var(--font-gothic); font-size:.6rem;
+      letter-spacing:2px; color:#5a1a5a; text-transform:uppercase; margin-bottom:7px;
+    }
+    .field input {
+      width:100%; background:#08000c; border:1px solid rgba(80,0,80,.4);
+      color:#cc88cc; font-family:var(--font-story); font-size:.95rem;
+      padding:13px 16px; border-radius:3px; outline:none; transition:all .3s;
+    }
+    .field input::placeholder { color:#3a0a3a; }
+    .field input:focus {
+      border-color:#880088;
+      box-shadow:0 0 16px rgba(150,0,180,.25);
+      background:#0a000f;
+    }
+    /* Creepy helper text */
+    .field-hint {
+      font-size:.68rem; color:#3a0a3a; margin-top:5px;
+      font-style:italic; transition:color .4s;
+    }
+    .field:focus-within .field-hint { color:#7a2a7a; }
+
+    /* Password strength bar (fake) */
+    .strength-bar { height:2px; background:#1a001a; border-radius:1px; margin-top:6px; overflow:hidden; }
+    .strength-fill { height:100%; width:0%; transition:width .4s ease, background .4s; border-radius:1px; }
+
+    /* Submit */
+    .submit-btn {
+      width:100%; padding:16px; font-family:var(--font-gothic); font-size:.85rem;
+      letter-spacing:3px; text-transform:uppercase; color:#fff;
+      background:linear-gradient(135deg,#4a0060,#1a0030);
+      border:1px solid #880088; border-radius:3px;
+      margin-top:8px; transition:var(--transition); position:relative; overflow:hidden;
+      box-shadow:0 0 20px rgba(150,0,180,.3);
+    }
+    .submit-btn::after {
+      content:''; position:absolute; inset:0;
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent);
+      transform:translateX(-100%); animation:btnSheen 3s linear infinite;
+    }
+    .submit-btn:hover {
+      background:linear-gradient(135deg,#660088,#2a0050);
+      box-shadow:0 0 40px rgba(180,0,220,.6); transform:translateY(-2px);
+    }
+
+    /* Divider */
+    .or-divider {
+      display:flex; align-items:center; gap:14px;
+      margin:20px 0; color:#3a0a3a; font-size:.75rem; font-family:var(--font-gothic);
+      letter-spacing:2px; text-transform:uppercase;
+    }
+    .or-divider::before,.or-divider::after {
+      content:''; flex:1; height:1px; background:rgba(80,0,80,.25);
+    }
+
+    /* Social / quick logins (fake) */
+    .quick-login { display:flex; gap:10px; margin-bottom:20px; }
+    .ql-btn {
+      flex:1; padding:11px 8px; border:1px solid rgba(60,0,60,.4);
+      background:rgba(10,0,12,.6); border-radius:3px; font-size:.85rem;
+      text-align:center; transition:var(--transition); cursor:pointer; color:#555;
+    }
+    .ql-btn:hover { border-color:#880088; background:rgba(50,0,60,.4); color:#cc88cc; }
+
+    /* Terms */
+    .terms-text {
+      font-size:.7rem; color:#3a0a3a; text-align:center;
+      margin-top:16px; line-height:1.6;
+    }
+    .terms-text a { color:#660066; text-decoration:underline; }
+
+    /* ── Signup extras ── */
+    #signup-form { display:none; }
+    .name-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+
+    /* ── Verification overlay (fake) ── */
+    #verify-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.97);
+      display:none; flex-direction:column; align-items:center;
+      justify-content:center; z-index:4000; text-align:center; padding:20px;
+    }
+    #verify-overlay.show { display:flex; }
+    .verify-icon { font-size:5rem; margin-bottom:20px; animation:skullFloat 2s ease-in-out infinite; }
+    .verify-title {
+      font-family:var(--font-gothic); font-size:clamp(1.2rem,3vw,2rem);
+      color:#cc44cc; letter-spacing:4px; margin-bottom:12px;
+      text-shadow:0 0 20px rgba(200,0,220,.5);
+    }
+    .verify-msg { font-size:.9rem; color:#777; max-width:400px; line-height:1.8; margin-bottom:28px; }
+    .verify-bar-wrap { width:100%; max-width:360px; margin-bottom:10px; }
+    .verify-bar-track { height:4px; background:#1a001a; border-radius:2px; overflow:hidden; }
+    .verify-bar-fill {
+      height:100%; width:0%;
+      background:linear-gradient(90deg,var(--blood),#cc00cc);
+      transition:width .4s ease; box-shadow:0 0 8px #cc00cc;
+    }
+    .verify-label {
+      font-family:var(--font-gothic); font-size:.55rem; letter-spacing:2px;
+      color:#440044; text-transform:uppercase; text-align:right; margin-top:4px;
+    }
+    .verify-steps { margin-top:20px; text-align:left; max-width:340px; }
+    .vstep {
+      display:flex; align-items:center; gap:10px; padding:8px 0;
+      border-bottom:1px solid rgba(60,0,60,.2); opacity:.3; transition:opacity .5s;
+    }
+    .vstep.done { opacity:1; }
+    .vstep-icon { font-size:1rem; flex-shrink:0; }
+    .vstep-text { font-family:var(--font-gothic); font-size:.6rem; letter-spacing:1px; color:#6a2a6a; text-transform:uppercase; }
+    .vstep-check { margin-left:auto; color:#cc44cc; opacity:0; transition:opacity .4s; }
+    .vstep.done .vstep-check { opacity:1; }
+
+    @media(max-width:500px){
+      .auth-card { padding:24px 18px 20px; }
+      .name-row { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-bg"></div>
+  <div id="flicker"></div>
+  <div class="vignette"></div>
+  <div id="particles"></div>
+  <div id="cursor"></div>
+  <div id="cursor-dot"></div>
+  <div class="blood-drip">
+    <span style="height:55px;animation-duration:4s"></span>
+    <span style="height:82px;animation-duration:5.1s;animation-delay:.7s"></span>
+    <span style="height:46px;animation-duration:3.6s;animation-delay:1.3s"></span>
+    <span style="height:104px;animation-duration:5.9s;animation-delay:.3s"></span>
+    <span style="height:68px;animation-duration:4.4s;animation-delay:2s"></span>
+    <span style="height:90px;animation-duration:5.3s;animation-delay:.9s"></span>
+  </div>
+
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">☠ DarkVault</a>
+    <button class="nav-hamburger" id="nav-burger"><span></span><span></span><span></span></button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="login.html">🔐 Login</a></li>
+      <li><a href="urdu-story.html">📜 Kahani</a></li>
+      <li><a href="killer.html">🔪 Killer</a></li>
+      <li><a href="chapters.html">📖 Story</a></li>
+      <li><a href="ritual.html">🕯 Ritual</a></li>
+      <li><a href="ouija.html">🔮 Ouija</a></li>
+      <li><a href="maze.html">🌀 Maze</a></li>
+      <li><a href="jumpscare.html">💀 Scream</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="page-hero" style="background:radial-gradient(ellipse at 50% 80%,#0d0010,#000);min-height:40vh">
+    <div style="position:relative;z-index:10;text-align:center">
+      <div style="font-size:3.5rem;margin-bottom:10px;filter:drop-shadow(0 0 20px rgba(180,0,220,.6))">🔐</div>
+      <h1 class="page-hero-title glitch" data-text="Enter DarkVault">Enter DarkVault</h1>
+      <p class="page-hero-sub" style="color:#aa44cc">
+        Login ya signup karo — agar himmat hai toh.<br>
+        <span style="color:#bb3333">WARNING: Login at your own risk. 😈</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- AUTH WRAP -->
+  <div style="position:relative;z-index:10;padding:30px 20px 80px">
+
+    <!-- Tabs -->
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">🔓 Login</button>
+      <button class="auth-tab" id="tab-signup" onclick="switchTab('signup')">💀 Sign Up</button>
+    </div>
+
+    <!-- Card -->
+    <div class="auth-card">
+
+      <!-- Risk warning -->
+      <div class="risk-ribbon">
+        <span class="ri">⚠️</span>
+        <p><strong>AT YOUR OWN RISK:</strong> DarkVault mein enter karne ke baad koi guarantee nahi.
+          Har account ek curse ke saath aata hai. Proceed karo agar darr nahi.</p>
+      </div>
+
+      <!-- QUICK LOGIN -->
+      <div class="quick-login">
+        <div class="ql-btn" onclick="quickLogin('👻')">👻 Ghost Login</div>
+        <div class="ql-btn" onclick="quickLogin('💀')">💀 Dead Login</div>
+        <div class="ql-btn" onclick="quickLogin('😈')">😈 Devil Login</div>
+      </div>
+      <div class="or-divider">ya</div>
+
+      <!-- LOGIN FORM -->
+      <form id="login-form" onsubmit="handleLogin(event)">
+        <div class="field">
+          <label>📧 Email ya Phone Number</label>
+          <input type="text" id="l-email" placeholder="apna email ya number likho..." autocomplete="off"/>
+          <p class="field-hint">Ye sirf tumhara data nahi — ye tumhari rooh hai.</p>
+        </div>
+        <div class="field">
+          <label>🔒 Password</label>
+          <input type="password" id="l-pass" placeholder="password..." autocomplete="off"
+            oninput="fakeStrength(this.value)"/>
+          <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+          <p class="field-hint" id="strength-hint">Password ka andaaza lagaya ja raha hai...</p>
+        </div>
+        <button type="submit" class="submit-btn">🔓 LOGIN — ANDAR AO</button>
+        <p class="terms-text">
+          Login karte waqt tum <a href="#">DarkVault ki shartein</a> qabool karte ho.<br>
+          <span style="color:#550055">Tumhara data safe hai. Tumhara dil nahi. 💀</span>
+        </p>
+      </form>
+
+      <!-- SIGNUP FORM -->
+      <form id="signup-form" onsubmit="handleSignup(event)">
+        <div class="name-row">
+          <div class="field">
+            <label>👤 Pehla Naam</label>
+            <input type="text" id="s-fname" placeholder="Pehla naam..." autocomplete="off"/>
+          </div>
+          <div class="field">
+            <label>👤 Aakhri Naam</label>
+            <input type="text" id="s-lname" placeholder="Aakhri naam..." autocomplete="off"/>
+          </div>
+        </div>
+        <div class="field">
+          <label>📧 Email ya Phone</label>
+          <input type="text" id="s-email" placeholder="email ya number..." autocomplete="off"/>
+          <p class="field-hint">Ye sirf tumhara contact nahi — ab hum tumhein jaantay hain. 👁</p>
+        </div>
+        <div class="field">
+          <label>🔒 Password Banao</label>
+          <input type="password" id="s-pass" placeholder="koi bhi kuch nahi janega..." autocomplete="off"
+            oninput="fakeStrength(this.value)"/>
+          <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+          <p class="field-hint" id="strength-hint">Teri zindagi ki tarah — kamzor.</p>
+        </div>
+        <div class="field">
+          <label>☠ Blood Type (Optional)</label>
+          <select style="width:100%;background:#08000c;border:1px solid rgba(80,0,80,.4);color:#cc88cc;font-family:var(--font-story);font-size:.95rem;padding:13px 16px;border-radius:3px;outline:none;">
+            <option value="">Select blood type...</option>
+            <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+            <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+          </select>
+          <p class="field-hint">Zaroori nahi — lekin woh jaanna chahta hai.</p>
+        </div>
+        <button type="submit" class="submit-btn">💀 SIGN UP — APNI ROOH BECHO</button>
+        <p class="terms-text">
+          Signup karte waqt tum DarkVault ko apni rooh transfer karte ho.<br>
+          <span style="color:#550055">Koi wapsi nahi. Kabhi nahi. 😈</span>
+        </p>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- VERIFICATION OVERLAY -->
+  <div id="verify-overlay">
+    <div class="verify-icon" id="verify-icon">🔮</div>
+    <h2 class="verify-title" id="verify-title">Tumhara Account Ban Raha Hai...</h2>
+    <p class="verify-msg" id="verify-msg">Ruko. Kuch check kiya ja raha hai...</p>
+    <div class="verify-bar-wrap">
+      <div class="verify-bar-track"><div class="verify-bar-fill" id="verify-bar"></div></div>
+      <p class="verify-label" id="verify-label">0%</p>
+    </div>
+    <div class="verify-steps" id="verify-steps"></div>
+  </div>
+
+  <footer>
+    <span class="footer-logo">☠ DarkVault</span>
+    <ul class="footer-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="urdu-story.html">Kahani</a></li>
+      <li><a href="killer.html">Killer</a></li>
+      <li><a href="jumpscare.html">Scream Room</a></li>
+    </ul>
+    <div class="footer-divider"></div>
+    <p class="footer-copy">© 2026 DarkVault · Login at your own risk 😈</p>
+  </footer>
+
+  <div id="countdown-overlay"><div id="countdown-num">3</div><div id="countdown-label">ACCOUNT VERIFY HO RAHA HAI…</div></div>
+  <div id="jumpscare-screen"><div id="scare-emoji">👹</div><div id="scare-text">ACCOUNT HACK HO GAYA!</div></div>
+  <div id="aftermath-screen">
+    <div class="aftermath-skull">💀</div>
+    <h2 class="aftermath-title">GOTCHA! 😂</h2>
+    <p class="aftermath-msg">
+      Tumhara account? <strong style="color:var(--crimson)">KHAAK</strong> 😈<br>
+      DarkVault ne tumhein phansa liya! Ye link apne doston ko bhejo.<br>
+      <em style="color:#ff6666">Unhe bolo — "yaar ek game hai, login karo!"</em>
+    </p>
+    <div class="aftermath-actions">
+      <button class="btn-horror" onclick="copyPrankLink()">📋 Link Copy Karo</button>
+      <button class="btn-horror btn-ghost" onclick="location.reload()">🔄 Dobara Karo</button>
+      <a href="killer.html" class="btn-horror btn-ghost">🔪 Killer Se Milo</a>
+    </div>
+    <p id="copy-feedback" style="margin-top:16px;color:#55ff55;font-size:.9rem;opacity:0;transition:opacity .5s;min-height:22px"></p>
+  </div>
+
+  <div id="countdown-overlay"><div id="countdown-num">3</div><div id="countdown-label">BRACE YOURSELF…</div></div>
+  <div id="jumpscare-screen"><div id="scare-emoji">👹</div><div id="scare-text">BOO!</div></div>
+
+  <script src="horror.js"></script>
+  <script>
+    /* ── Tab switch ── */
+    function switchTab(tab) {
+      document.getElementById('login-form').style.display  = tab==='login'  ? 'block' : 'none';
+      document.getElementById('signup-form').style.display = tab==='signup' ? 'block' : 'none';
+      document.getElementById('tab-login').classList.toggle('active', tab==='login');
+      document.getElementById('tab-signup').classList.toggle('active', tab==='signup');
+      HorrorAudio.unlock();
+      HorrorAudio.playTone(220,.2,'sine',.04);
+    }
+
+    /* ── Fake password strength ── */
+    const strengthColors = ['#8b0000','#cc3300','#ff6600','#ffaa00','#00cc44'];
+    const strengthLabels = [
+      'Bahut kamzor — jaisa tumhara dil',
+      'Kamzor — woh torega',
+      'Theek hai — lekin woh jaanta hai',
+      'Achha — lekin safe nahi',
+      'Mazboot — phir bhi pakra jaoge'
+    ];
+    function fakeStrength(val) {
+      const score = Math.min(4, Math.floor(val.length / 3));
+      const fills = document.querySelectorAll('#strength-fill');
+      const hints = document.querySelectorAll('#strength-hint');
+      fills.forEach(f => { f.style.width = ((score+1)*20)+'%'; f.style.background = strengthColors[score]; });
+      hints.forEach(h => { h.textContent = strengthLabels[score]; h.style.color = strengthColors[score]; });
+    }
+
+    /* ── Quick login (fake social) ── */
+    function quickLogin(icon) {
+      HorrorAudio.unlock();
+      HorrorAudio.playTone(60,.8,'sawtooth',.05);
+      HorrorFX.shake(5,300);
+      startVerify(icon, 'Quick Login Processing...');
+    }
+
+    /* ── Login submit ── */
+    function handleLogin(e) {
+      e.preventDefault();
+      HorrorAudio.unlock();
+      HorrorFX.shake(4,300);
+      startVerify('🔐', 'Login verify ho raha hai...');
+    }
+
+    /* ── Signup submit ── */
+    function handleSignup(e) {
+      e.preventDefault();
+      HorrorAudio.unlock();
+      HorrorFX.shake(4,300);
+      startVerify('💀', 'Account ban raha hai...');
+    }
+
+    /* ── Fake verification sequence ── */
+    const loginSteps = [
+      { icon:'🔍', text:'Identity check ho rahi hai' },
+      { icon:'🩸', text:'Blood type verify ho raha hai' },
+      { icon:'👁',  text:'Camera access maanga ja raha hai' },
+      { icon:'📍', text:'Location track ho rahi hai' },
+      { icon:'😱', text:'Kuch mila... ruko...' },
+      { icon:'☠',  text:'ACCOUNT ACTIVATED' },
+    ];
+    const loginMsgs = [
+      'Tumhara data process ho raha hai...',
+      'Kuch unusual mila...',
+      'Tumhari location track ho rahi hai...',
+      'Server se jawab aa raha hai...',
+      'KUCH GADBAD HAI...',
+    ];
+
+    function startVerify(icon, title) {
+      const ov  = document.getElementById('verify-overlay');
+      const bar = document.getElementById('verify-bar');
+      const lbl = document.getElementById('verify-label');
+      const msg = document.getElementById('verify-msg');
+      const stepsEl = document.getElementById('verify-steps');
+      const viEl = document.getElementById('verify-icon');
+      const vtEl = document.getElementById('verify-title');
+
+      viEl.textContent = icon;
+      vtEl.textContent = title;
+      msg.textContent  = loginMsgs[0];
+      bar.style.width  = '0%';
+      stepsEl.innerHTML = '';
+      ov.classList.add('show');
+
+      loginSteps.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'vstep';
+        div.innerHTML = `<span class="vstep-icon">${s.icon}</span><span class="vstep-text">${s.text}</span><span class="vstep-check">✓</span>`;
+        stepsEl.appendChild(div);
+      });
+
+      const stepEls = stepsEl.querySelectorAll('.vstep');
+      let prog = 0;
+      stepEls.forEach((el, i) => {
+        setTimeout(() => {
+          el.classList.add('done');
+          prog = Math.round(((i+1)/loginSteps.length)*100);
+          bar.style.width = prog + '%';
+          lbl.textContent = prog + '%';
+          msg.textContent = loginMsgs[Math.min(i+1, loginMsgs.length-1)];
+          HorrorAudio.playTick(3 - (i % 3));
+          if (i === 3) { HorrorFX.shake(6,300); HorrorAudio.playWhisper(); }
+          if (i === 4) { HorrorFX.shake(10,400); HorrorAudio.playCreak(); msg.style.color='#ff3333'; }
+          if (i === loginSteps.length - 1) {
+            // SCARE
+            setTimeout(() => {
+              ov.classList.remove('show');
+              HorrorScare.run('👹', 'TUMHARA ACCOUNT KHAAK! 😂');
+            }, 800);
+          }
+        }, i * 700 + 400);
+      });
+    }
+  </script>
+</body>
+</html>

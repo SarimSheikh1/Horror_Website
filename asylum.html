@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Blackwood Asylum — DarkVault</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=Special+Elite&family=Cinzel+Decorative:wght@400;700;900&family=UnifrakturMaguntia&display=swap" rel="stylesheet"/>
+  <style>
+    .room-map { display:grid; grid-template-columns:repeat(3,1fr); gap:3px; max-width:900px; margin:0 auto; padding:20px; }
+    .room {
+      position:relative; height:180px; background:var(--panel);
+      border:1px solid #111; display:flex; align-items:center;
+      justify-content:center; overflow:hidden; transition:var(--transition);
+    }
+    .room:hover { border-color:var(--blood); box-shadow:inset 0 0 30px rgba(255,0,0,.15),0 0 20px rgba(255,0,0,.2); z-index:5; }
+    .room .room-icon { font-size:2.8rem; transition:var(--transition); filter:grayscale(1); }
+    .room:hover .room-icon { filter:grayscale(0) drop-shadow(0 0 12px rgba(255,0,0,.8)); transform:scale(1.2); }
+    .room-info { position:absolute; bottom:0; left:0; right:0; padding:10px 14px;
+      background:linear-gradient(to top,rgba(0,0,0,.95),transparent);
+      transform:translateY(70%); transition:var(--transition); }
+    .room:hover .room-info { transform:translateY(0); }
+    .room-name { font-family:var(--font-gothic); font-size:.7rem; letter-spacing:2px; color:var(--ghost); text-transform:uppercase; margin-bottom:4px; }
+    .room-flavor { font-size:.72rem; color:#666; line-height:1.5; }
+    .room::before { content:''; position:absolute; inset:0;
+      background:radial-gradient(ellipse at 50% 100%,rgba(60,0,0,.4),transparent 70%); opacity:0; transition:var(--transition); }
+    .room:hover::before { opacity:1; }
+
+    /* Corridor walkthrough */
+    .corridor { max-width:700px; margin:0 auto; padding:40px 20px; }
+    .corridor-step {
+      padding:28px 28px 28px 36px; border-left:2px solid #1a0000;
+      margin-bottom:32px; background:rgba(8,0,0,.5); border-radius:0 4px 4px 0;
+      opacity:0; transform:translateX(-20px); transition:all .7s ease;
+      position:relative;
+    }
+    .corridor-step.visible { opacity:1; transform:translateX(0); }
+    .corridor-step::before {
+      content:''; position:absolute; left:-5px; top:24px;
+      width:8px; height:8px; background:var(--blood); border-radius:50%;
+      box-shadow:0 0 8px var(--blood);
+    }
+    .step-room { font-family:var(--font-gothic); font-size:.6rem; letter-spacing:3px; color:var(--blood); text-transform:uppercase; margin-bottom:6px; }
+    .step-title { font-family:var(--font-gothic); font-size:1rem; color:var(--ghost); margin-bottom:10px; }
+    .step-text { font-size:.88rem; color:#999; line-height:1.8; }
+    .step-text .red { color:var(--crimson); font-style:italic; }
+
+    @media(max-width:600px){ .room-map { grid-template-columns:repeat(2,1fr); } .room { height:140px; } }
+  </style>
+</head>
+<body>
+  <div id="flicker"></div>
+  <div class="vignette"></div>
+  <div id="particles"></div>
+  <div id="cursor"></div>
+  <div id="cursor-dot"></div>
+  <div class="blood-drip">
+    <span style="height:60px;animation-duration:4.2s"></span>
+    <span style="height:85px;animation-duration:5.1s;animation-delay:.7s"></span>
+    <span style="height:48px;animation-duration:3.7s;animation-delay:1.3s"></span>
+    <span style="height:105px;animation-duration:6s;animation-delay:.3s"></span>
+    <span style="height:70px;animation-duration:4.5s;animation-delay:2s"></span>
+    <span style="height:92px;animation-duration:5.4s;animation-delay:.9s"></span>
+    <span style="height:52px;animation-duration:3.9s;animation-delay:2.3s"></span>
+    <span style="height:78px;animation-duration:4.8s;animation-delay:.5s"></span>
+  </div>
+
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">☠ DarkVault</a>
+    <button class="nav-hamburger" id="nav-burger"><span></span><span></span><span></span></button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="chapters.html">📖 Story</a></li>
+      <li><a href="asylum.html">🏚 Asylum</a></li>
+      <li><a href="forest.html">🌲 Forest</a></li>
+      <li><a href="ritual.html">🕯 Ritual</a></li>
+      <li><a href="gallery.html">🖼 Gallery</a></li>
+      <li><a href="jumpscare.html">💀 Scream</a></li>
+    </ul>
+  </nav>
+
+  <section class="page-hero" style="background:radial-gradient(ellipse at 40% 70%,#1a0a00,#000)">
+    <div style="position:relative;z-index:10;text-align:center">
+      <div style="font-size:4rem;margin-bottom:16px;filter:drop-shadow(0 0 20px rgba(255,80,0,.5))">🏚</div>
+      <h1 class="page-hero-title glitch" data-text="Blackwood Asylum">Blackwood Asylum</h1>
+      <p class="page-hero-sub">
+        Opened 1887. Closed under mysterious circumstances in 1962.<br>
+        <span style="color:#bb3333">Population at closure: 247 patients. Bodies recovered: 11.</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- Asylum file card -->
+  <div style="max-width:700px;margin:40px auto;padding:0 20px">
+    <div class="reveal" style="border:1px solid #1a0a00;background:rgba(12,4,0,.7);padding:28px 32px;border-radius:4px;
+      box-shadow:0 0 40px rgba(80,20,0,.3),inset 0 0 20px rgba(0,0,0,.5)">
+      <p style="font-family:var(--font-gothic);font-size:.6rem;letter-spacing:3px;color:#8b4513;text-transform:uppercase;margin-bottom:14px">
+        ⚠ DECLASSIFIED CASE FILE #0047-B
+      </p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div><span style="font-size:.7rem;color:#555;display:block;margin-bottom:2px">ESTABLISHED</span><span style="font-size:.88rem;color:#ccc">1887</span></div>
+        <div><span style="font-size:.7rem;color:#555;display:block;margin-bottom:2px">CLOSED</span><span style="font-size:.88rem;color:#ccc">1962 (Reason: Classified)</span></div>
+        <div><span style="font-size:.7rem;color:#555;display:block;margin-bottom:2px">LAST SUPERINTENDENT</span><span style="font-size:.88rem;color:var(--crimson)">Dr. Elias Morrow (Missing)</span></div>
+        <div><span style="font-size:.7rem;color:#555;display:block;margin-bottom:2px">STATUS</span><span style="font-size:.88rem;color:var(--blood)">Abandoned · Condemned</span></div>
+      </div>
+      <p style="font-size:.82rem;color:#666;margin-top:16px;line-height:1.7">
+        Multiple reported sightings on the premises since closure. Local law enforcement refuse to investigate.
+        Three urban explorers entered in 2019. <span style="color:var(--crimson)">Two returned.</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- ROOM MAP -->
+  <section style="padding:20px 0 60px">
+    <div class="section-header reveal" style="padding:0 20px 30px">
+      <h2 class="section-title">Floor Plan — Select a Room</h2>
+      <div class="section-divider">🏚</div>
+    </div>
+    <div class="room-map">
+      <div class="room" onclick="enterRoom('Intake Hall','The intake hall still smells of antiseptic and fear. Patient registration cards litter the floor, each one stamped DECEASED in red.',this)">
+        <span class="room-icon">🚪</span>
+        <div class="room-info"><p class="room-name">Intake Hall</p><p class="room-flavor">Where the screaming began</p></div>
+      </div>
+      <div class="room" onclick="enterRoom('Ward 13','Thirteen beds. Thirteen sets of leather restraints. The mattresses are stained dark. The walls are covered in scratch marks that spell out the same word, over and over.','this')">
+        <span class="room-icon">🛏</span>
+        <div class="room-info"><p class="room-name">Ward 13</p><p class="room-flavor">The lucky ones got a bed</p></div>
+      </div>
+      <div class="room" onclick="HorrorScare.run('👹','GET OUT OF WARD 6!')">
+        <span class="room-icon">🔒</span>
+        <div class="room-info"><p class="room-name">Ward 6 — SEALED</p><p class="room-flavor">Do not enter under any circumstances</p></div>
+      </div>
+      <div class="room" onclick="enterRoom('Operating Theatre','The operating theatre was in use until the day the asylum closed. The last procedure was never logged. The surgical instruments are still laid out on the tray, clean and waiting.')">
+        <span class="room-icon">🔪</span>
+        <div class="room-info"><p class="room-name">Operating Theatre</p><p class="room-flavor">They called it treatment</p></div>
+      </div>
+      <div class="room" onclick="enterRoom('Records Room','46,000 patient files. Most detail standard admissions for hysteria, melancholy, deviant behaviour. The last 200 files have no diagnosis. Just a room number and a date. The room number is always the same: Sub-Level 3.')">
+        <span class="room-icon">📁</span>
+        <div class="room-info"><p class="room-name">Records Room</p><p class="room-flavor">Every name. Every secret.</p></div>
+      </div>
+      <div class="room" onclick="enterRoom('Chapel','The chapel was converted in 1931. The pews face inward. The altar holds no cross — only a mirror, bolted to the stone. The mirror is covered with a black cloth. The cloth moves when there is no wind.')">
+        <span class="room-icon">⛪</span>
+        <div class="room-info"><p class="room-name">The Chapel</p><p class="room-flavor">God stopped listening here</p></div>
+      </div>
+      <div class="room" onclick="HorrorScare.run('💀','THEY NEVER LEFT!')">
+        <span class="room-icon">🪦</span>
+        <div class="room-info"><p class="room-name">Staff Quarters</p><p class="room-flavor">Their belongings are still here</p></div>
+      </div>
+      <div class="room" onclick="enterRoom('Electroshock Room','Room 9 was used for electroconvulsive therapy from 1948 onwards. Patient consent was not required. The chair is still bolted to the floor. The electrodes are still attached. The machine still works.')">
+        <span class="room-icon">⚡</span>
+        <div class="room-info"><p class="room-name">Room 9 — ECT</p><p class="room-flavor">The screams echo still</p></div>
+      </div>
+      <div class="room" onclick="enterRoom('Sub-Level 3','You find stairs behind a false wall in the records room. They descend further than the blueprints indicate. At the bottom, a single corridor. Single door at the end. Light under the door. Someone — or something — is still down here.')">
+        <span class="room-icon">⬇️</span>
+        <div class="room-info"><p class="room-name">Sub-Level 3</p><p class="room-flavor">It does not appear on any map</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Room description popup -->
+  <div id="room-popup" style="display:none;max-width:600px;margin:0 auto 20px;padding:0 20px">
+    <div style="border:1px solid var(--border);background:rgba(15,3,0,.9);padding:28px 32px;border-radius:4px;
+      box-shadow:0 0 40px rgba(255,0,0,.15);animation:fadeSlideUp .4s ease-out">
+      <p id="room-popup-title" style="font-family:var(--font-gothic);font-size:.65rem;letter-spacing:3px;color:var(--blood);text-transform:uppercase;margin-bottom:10px"></p>
+      <p id="room-popup-text" style="font-size:.9rem;color:#bbb;line-height:1.8"></p>
+      <button onclick="document.getElementById('room-popup').style.display='none'" class="btn-horror btn-ghost" style="margin-top:16px;font-size:.65rem;padding:8px 20px">Close Room</button>
+    </div>
+  </div>
+
+  <!-- CORRIDOR WALKTHROUGH -->
+  <section style="background:linear-gradient(to bottom,#050505,#0a0200,#050505);padding:60px 0">
+    <div class="section-header reveal" style="padding:0 20px 40px">
+      <h2 class="section-title">Walk The Corridor</h2>
+      <div class="section-divider">🚶</div>
+    </div>
+    <div class="corridor">
+      <div class="corridor-step">
+        <p class="step-room">Entry — 11:47 PM</p>
+        <h3 class="step-title">The Padlock Is Already Open</h3>
+        <p class="step-text">The chain on the main gate hangs loose. Someone has been here recently. Your torch beam sweeps across the entrance hall — cracked tile floors, peeling walls, a reception desk with a ledger still open to a page dated October 14, 1962. <span class="red">The last entry reads: "They won't stop screaming. I can't make them stop."</span></p>
+      </div>
+      <div class="corridor-step">
+        <p class="step-room">Corridor B — 11:52 PM</p>
+        <h3 class="step-title">The Patient Is Still There</h3>
+        <p class="step-text">Halfway down Corridor B you find a wheelchair. In it sits a figure — until your torch reaches it and you see it's a bundle of old clothes, arranged to look like a seated person. Deliberately arranged. Someone positioned this recently. <span class="red">You hear a door close somewhere above you.</span></p>
+      </div>
+      <div class="corridor-step">
+        <p class="step-room">Ward 13 — 12:01 AM</p>
+        <h3 class="step-title">Thirteen Beds. Fourteen Names.</h3>
+        <p class="step-text">The ward register is still on the wall. Thirteen patient names. But at the bottom, in different handwriting, a fourteenth name has been added. The ink is fresh. <span class="red">The name is yours.</span></p>
+      </div>
+      <div class="corridor-step">
+        <p class="step-room">Sub-Level 3 — 12:19 AM</p>
+        <h3 class="step-title">You Are Not Alone Down Here</h3>
+        <p class="step-text">The staircase goes down further than it should. At the bottom, a long corridor with a single light at the end — fluorescent, buzzing. Seven doors, all closed. As you approach the light, you realise the buzzing has rhythm. <span class="red">It's breathing.</span> The door at the end has a keypad. Someone has recently typed a code — the buttons are worn. 1, 4, 6, 2. The year the asylum closed.</p>
+      </div>
+    </div>
+    <div style="text-align:center;padding:0 20px">
+      <button class="btn-horror reveal" onclick="HorrorScare.run('👺','SUB-LEVEL 3 AWAKENED!')" style="padding:18px 48px">
+        🔑 Enter Sub-Level 3
+      </button>
+    </div>
+  </section>
+
+  <footer>
+    <span class="footer-logo">☠ DarkVault</span>
+    <ul class="footer-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="chapters.html">Story</a></li>
+      <li><a href="forest.html">Forest</a></li>
+      <li><a href="ritual.html">Ritual</a></li>
+      <li><a href="gallery.html">Gallery</a></li>
+      <li><a href="jumpscare.html">Scream Room</a></li>
+    </ul>
+    <div class="footer-divider"></div>
+    <p class="footer-copy">© 2026 DarkVault · You should not have come here 😈</p>
+  </footer>
+
+  <div id="countdown-overlay"><div id="countdown-num">3</div><div id="countdown-label">BRACE YOURSELF…</div></div>
+  <div id="jumpscare-screen"><div id="scare-emoji">😱</div><div id="scare-text">BOO!</div></div>
+  <div id="aftermath-screen">
+    <div class="aftermath-skull">💀</div>
+    <h2 class="aftermath-title">GOTCHA! 😂</h2>
+    <p class="aftermath-msg">You just escaped Blackwood Asylum! Share this with your friends so they can visit too.<br><em style="color:#ff6666">They won't make it out.</em></p>
+    <div class="aftermath-actions">
+      <button class="btn-horror" onclick="copyPrankLink()">📋 Share The Asylum</button>
+      <button class="btn-horror btn-ghost" onclick="location.reload()">🔄 Try Again</button>
+      <a href="forest.html" class="btn-horror btn-ghost">🌲 Enter The Forest</a>
+    </div>
+    <p id="copy-feedback" style="margin-top:16px;color:#55ff55;font-size:.9rem;opacity:0;transition:opacity .5s;min-height:22px"></p>
+  </div>
+
+  <script src="horror.js"></script>
+  <script>
+    function enterRoom(name, text) {
+      HorrorAudio.unlock();
+      HorrorAudio.playTone(60, 0.8, 'sawtooth', 0.05);
+      HorrorFX.shake(5, 300);
+      document.getElementById('room-popup-title').textContent = '🔦 ' + name;
+      document.getElementById('room-popup-text').textContent  = text;
+      const popup = document.getElementById('room-popup');
+      popup.style.display = 'block';
+      popup.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    // Observe corridor steps
+    document.querySelectorAll('.corridor-step').forEach(el => {
+      new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) el.classList.add('visible'); });
+      }, { threshold: 0.2 }).observe(el);
+    });
+  </script>
+</body>
+</html>

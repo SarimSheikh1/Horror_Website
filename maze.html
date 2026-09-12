@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Horror Maze — DarkVault</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=Special+Elite&family=Cinzel+Decorative:wght@400;700;900&family=UnifrakturMaguntia&display=swap" rel="stylesheet"/>
+  <style>
+    body { background:#000; }
+
+    /* ── Game canvas wrapper ── */
+    #game-wrap {
+      display:flex; flex-direction:column; align-items:center;
+      padding:80px 20px 40px; position:relative; z-index:10;
+    }
+    #maze-canvas {
+      border:2px solid var(--blood);
+      box-shadow:0 0 40px rgba(255,0,0,.4), inset 0 0 20px rgba(0,0,0,.8);
+      display:block; max-width:100%;
+      image-rendering:pixelated;
+      background:#000;
+    }
+
+    /* HUD */
+    #hud {
+      display:flex; justify-content:space-between; align-items:center;
+      width:100%; max-width:560px; padding:10px 0; margin-bottom:8px;
+      font-family:var(--font-gothic); font-size:.65rem; letter-spacing:2px;
+      text-transform:uppercase;
+    }
+    #hud-level   { color:var(--blood); }
+    #hud-time    { color:var(--ghost); }
+    #hud-hearts  { color:#ff3333; font-size:.9rem; letter-spacing:4px; }
+
+    /* Controls legend */
+    #ctrl-legend {
+      display:flex; gap:10px; flex-wrap:wrap; justify-content:center;
+      margin-top:12px; max-width:560px;
+    }
+    .ctrl-key {
+      font-family:var(--font-gothic); font-size:.6rem; letter-spacing:1px;
+      border:1px solid #1a0000; padding:5px 10px; border-radius:2px;
+      color:#555; background:rgba(10,0,0,.5);
+    }
+
+    /* Overlay screens */
+    .game-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.95);
+      display:flex; flex-direction:column; align-items:center;
+      justify-content:center; z-index:4000; text-align:center; padding:20px;
+      gap:20px;
+    }
+    .game-overlay.hidden { display:none; }
+    .go-icon   { font-size:clamp(4rem,12vw,8rem); }
+    .go-title  { font-family:var(--font-gothic); font-size:clamp(1.4rem,4vw,3rem);
+                 color:var(--ghost); letter-spacing:4px; text-shadow:var(--glow-red); }
+    .go-sub    { font-size:clamp(.85rem,2vw,1.1rem); color:#666; max-width:480px; line-height:1.8; }
+    .go-tip    { font-family:var(--font-gothic); font-size:.65rem; letter-spacing:3px;
+                 color:var(--blood); text-transform:uppercase; }
+
+    /* Mobile D-pad */
+    #dpad {
+      display:none; grid-template-columns:repeat(3,52px);
+      grid-template-rows:repeat(3,52px); gap:4px; margin-top:16px;
+    }
+    @media(max-width:600px){ #dpad { display:grid; } }
+    .dpad-btn {
+      background:rgba(20,0,0,.7); border:1px solid var(--border);
+      border-radius:4px; font-size:1.4rem; display:flex;
+      align-items:center; justify-content:center;
+      transition:background .1s; user-select:none;
+      -webkit-user-select:none;
+    }
+    .dpad-btn:active { background:rgba(139,0,0,.5); }
+
+    /* Flash overlay */
+    #monster-flash {
+      position:fixed; inset:0; background:rgba(255,0,0,.6);
+      pointer-events:none; opacity:0; z-index:3500;
+      transition:opacity .1s;
+    }
+    /* Torch vignette */
+    #torch-vignette {
+      position:fixed; inset:0; pointer-events:none; z-index:9;
+    }
+  </style>
+</head>
+<body>
+  <div id="flicker"></div>
+  <div id="particles"></div>
+  <div id="cursor"></div>
+  <div id="cursor-dot"></div>
+  <div id="monster-flash"></div>
+
+  <!-- Torch vignette canvas -->
+  <canvas id="torch-vignette"></canvas>
+
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">☠ DarkVault</a>
+    <button class="nav-hamburger" id="nav-burger"><span></span><span></span><span></span></button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="chapters.html">📖 Story</a></li>
+      <li><a href="asylum.html">🏚 Asylum</a></li>
+      <li><a href="forest.html">🌲 Forest</a></li>
+      <li><a href="ritual.html">🕯 Ritual</a></li>
+      <li><a href="ouija.html">🔮 Ouija</a></li>
+      <li><a href="maze.html">🌀 Maze</a></li>
+      <li><a href="cursed-quiz.html">📋 Quiz</a></li>
+      <li><a href="death-clock.html">⏳ Death</a></li>
+      <li><a href="gallery.html">🖼 Gallery</a></li>
+      <li><a href="jumpscare.html">💀 Scream</a></li>
+    </ul>
+  </nav>
+
+  <!-- START SCREEN -->
+  <div class="game-overlay" id="start-screen">
+    <div class="go-icon">🌀</div>
+    <h1 class="go-title">The Horror Maze</h1>
+    <p class="go-sub">
+      Navigate the maze with your torch. Find the exit before the monster finds you.<br>
+      <span style="color:var(--crimson)">It hunts by sound. Every move you make, it hears.</span>
+    </p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:360px;width:100%">
+      <div style="text-align:center;border:1px solid #1a0000;padding:12px;border-radius:4px">
+        <div style="font-size:1.8rem">🧍</div>
+        <p style="font-size:.65rem;color:#555;font-family:var(--font-gothic);letter-spacing:1px;margin-top:4px">YOU</p>
+      </div>
+      <div style="text-align:center;border:1px solid #1a0000;padding:12px;border-radius:4px">
+        <div style="font-size:1.8rem">🚪</div>
+        <p style="font-size:.65rem;color:#555;font-family:var(--font-gothic);letter-spacing:1px;margin-top:4px">EXIT</p>
+      </div>
+      <div style="text-align:center;border:1px solid #500;padding:12px;border-radius:4px">
+        <div style="font-size:1.8rem">👹</div>
+        <p style="font-size:.65rem;color:var(--blood);font-family:var(--font-gothic);letter-spacing:1px;margin-top:4px">MONSTER</p>
+      </div>
+    </div>
+    <button class="btn-horror" onclick="startGame()" style="padding:16px 48px;font-size:1rem">
+      🎮 Enter The Maze
+    </button>
+    <p class="go-tip">Arrow Keys / WASD to move · Mobile D-pad below</p>
+  </div>
+
+  <!-- WIN SCREEN -->
+  <div class="game-overlay hidden" id="win-screen">
+    <div class="go-icon">🚪</div>
+    <h2 class="go-title" style="color:#55ff55;text-shadow:0 0 20px rgba(0,255,0,.4)">YOU ESCAPED!</h2>
+    <p class="go-sub" id="win-msg">You found the exit!</p>
+    <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center">
+      <button class="btn-horror" onclick="nextLevel()" style="padding:14px 36px">⬆ Next Level</button>
+      <button class="btn-horror btn-ghost" onclick="restartGame()" style="padding:14px 28px">🔄 Restart</button>
+    </div>
+  </div>
+
+  <!-- DEAD SCREEN -->
+  <div class="game-overlay hidden" id="dead-screen">
+    <div class="go-icon">💀</div>
+    <h2 class="go-title" style="color:var(--neon-red)">IT GOT YOU</h2>
+    <p class="go-sub" id="dead-msg">The monster caught you in the dark.</p>
+    <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center">
+      <button class="btn-horror" onclick="restartGame()" style="padding:14px 36px">🔄 Try Again</button>
+      <button class="btn-horror btn-ghost" onclick="copyPrankLink()" style="padding:14px 28px">📋 Share</button>
+    </div>
+  </div>
+
+  <!-- GAME -->
+  <div id="game-wrap">
+    <div id="hud">
+      <span id="hud-level">Level 1</span>
+      <span id="hud-time">0:00</span>
+      <span id="hud-hearts">♥♥♥</span>
+    </div>
+    <canvas id="maze-canvas" width="560" height="560"></canvas>
+
+    <!-- Mobile D-pad -->
+    <div id="dpad">
+      <div></div>
+      <div class="dpad-btn" ontouchstart="dpadPress('up')"   onmousedown="dpadPress('up')">▲</div>
+      <div></div>
+      <div class="dpad-btn" ontouchstart="dpadPress('left')" onmousedown="dpadPress('left')">◀</div>
+      <div class="dpad-btn" ontouchstart="dpadPress('down')" onmousedown="dpadPress('down')">▼</div>
+      <div class="dpad-btn" ontouchstart="dpadPress('right')"onmousedown="dpadPress('right')">▶</div>
+      <div></div><div></div><div></div>
+    </div>
+
+    <div id="ctrl-legend">
+      <span class="ctrl-key">↑↓←→ Move</span>
+      <span class="ctrl-key">WASD Move</span>
+      <span class="ctrl-key">🧍 You</span>
+      <span class="ctrl-key">🚪 Exit</span>
+      <span class="ctrl-key">👹 Monster</span>
+    </div>
+  </div>
+
+  <!-- Overlays -->
+  <div id="countdown-overlay"><div id="countdown-num">3</div><div id="countdown-label">BRACE YOURSELF…</div></div>
+  <div id="jumpscare-screen"><div id="scare-emoji">😱</div><div id="scare-text">BOO!</div></div>
+  <div id="aftermath-screen">
+    <div class="aftermath-skull">💀</div>
+    <h2 class="aftermath-title">GOTCHA! 😂</h2>
+    <p class="aftermath-msg">The maze claimed you! Share with friends and watch them suffer.<br><em style="color:#ff6666">No one escapes the Horror Maze.</em></p>
+    <div class="aftermath-actions">
+      <button class="btn-horror" onclick="copyPrankLink()">📋 Share The Maze</button>
+      <button class="btn-horror btn-ghost" onclick="location.reload()">🔄 Play Again</button>
+    </div>
+    <p id="copy-feedback" style="margin-top:16px;color:#55ff55;font-size:.9rem;opacity:0;transition:opacity .5s;min-height:22px"></p>
+  </div>
+
+  <script src="horror.js"></script>
+  <script>
+  /* ================================================================
+     HORROR MAZE ENGINE
+  ================================================================ */
+  const canvas  = document.getElementById('maze-canvas');
+  const ctx     = canvas.getContext('2d');
+  const CELL    = 40;            // pixels per cell
+  const COLS    = 14;
+  const ROWS    = 14;
+  canvas.width  = COLS * CELL;
+  canvas.height = ROWS * CELL;
+
+  let maze=[], player={x:1,y:1}, monster={x:0,y:0};
+  let exit={x:COLS-2,y:ROWS-2};
+  let hearts=3, level=1, gameRunning=false;
+  let timerSec=0, timerIv=null;
+  let monsterSpeed=800, monsterIv=null;
+  let scareDone=false;
+  let moveCount=0;
+
+  /* ---- Maze generation (Recursive Backtracker) ---- */
+  function generateMaze(cols, rows) {
+    const grid = Array.from({length:rows}, () => Array(cols).fill(1));
+    function carve(x,y){
+      grid[y][x]=0;
+      const dirs=[[0,-2],[0,2],[-2,0],[2,0]].sort(()=>Math.random()-.5);
+      for(const [dx,dy] of dirs){
+        const nx=x+dx, ny=y+dy;
+        if(nx>0&&nx<cols-1&&ny>0&&ny<rows-1&&grid[ny][nx]===1){
+          grid[y+dy/2][x+dx/2]=0;
+          carve(nx,ny);
+        }
+      }
+    }
+    carve(1,1);
+    grid[ROWS-2][COLS-2]=0; // ensure exit open
+    return grid;
+  }
+
+  /* ---- BFS pathfind for monster ---- */
+  function bfsNext(from, to, grid) {
+    const q=[{...from, path:[]}];
+    const visited=new Set([`${from.x},${from.y}`]);
+    while(q.length){
+      const {x,y,path}=q.shift();
+      if(x===to.x&&y===to.y) return path[0]||{x,y};
+      for(const [dx,dy] of [[0,-1],[0,1],[-1,0],[1,0]]){
+        const nx=x+dx, ny=y+dy;
+        const key=`${nx},${ny}`;
+        if(nx>=0&&nx<COLS&&ny>=0&&ny<ROWS&&grid[ny][nx]===0&&!visited.has(key)){
+          visited.add(key);
+          q.push({x:nx,y:ny,path:[...path,{x:nx,y:ny}]});
+        }
+      }
+    }
+    return from;
+  }
+
+  /* ---- Distance ---- */
+  function dist(a,b){ return Math.abs(a.x-b.x)+Math.abs(a.y-b.y); }
+
+  /* ---- Draw ---- */
+  const COLORS = {
+    wall:   '#0a0000',
+    floor:  '#0f0500',
+    player: '#00ccff',
+    exit:   '#00ff44',
+    monster:'#ff2200',
+    trail:  'rgba(0,200,255,.08)'
+  };
+
+  let playerTrail=[];
+
+  function drawGame(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    // Draw maze
+    for(let r=0;r<ROWS;r++){
+      for(let c=0;c<COLS;c++){
+        ctx.fillStyle = maze[r][c]===1 ? COLORS.wall : COLORS.floor;
+        ctx.fillRect(c*CELL,r*CELL,CELL,CELL);
+        if(maze[r][c]===1){
+          ctx.strokeStyle='rgba(80,0,0,.3)';
+          ctx.strokeRect(c*CELL+.5,r*CELL+.5,CELL-1,CELL-1);
+        }
+      }
+    }
+
+    // Trail
+    playerTrail.forEach((t,i)=>{
+      ctx.fillStyle=`rgba(0,200,255,${0.04*(i/playerTrail.length)})`;
+      ctx.fillRect(t.x*CELL+4,t.y*CELL+4,CELL-8,CELL-8);
+    });
+
+    // Exit glow
+    ctx.fillStyle='rgba(0,255,68,.15)';
+    ctx.fillRect(exit.x*CELL,exit.y*CELL,CELL,CELL);
+    ctx.font=`${CELL*.7}px serif`;
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('🚪',(exit.x+.5)*CELL,(exit.y+.55)*CELL);
+
+    // Player
+    ctx.font=`${CELL*.7}px serif`;
+    ctx.fillText('🧍',(player.x+.5)*CELL,(player.y+.55)*CELL);
+
+    // Monster — pulsing red circle + emoji
+    const pulse=.8+.2*Math.sin(Date.now()*.005);
+    ctx.fillStyle=`rgba(255,0,0,${.15*pulse})`;
+    ctx.beginPath();
+    ctx.arc((monster.x+.5)*CELL,(monster.y+.5)*CELL,CELL*.7*pulse,0,Math.PI*2);
+    ctx.fill();
+    ctx.font=`${CELL*.75}px serif`;
+    ctx.fillText('👹',(monster.x+.5)*CELL,(monster.y+.55)*CELL);
+
+    // Torch vignette
+    drawTorch();
+    requestAnimationFrame(()=>{ if(gameRunning) drawGame(); });
+  }
+
+  /* Torch (radial dark overlay) */
+  const tvCanvas=document.getElementById('torch-vignette');
+  const tvCtx   =tvCanvas.getContext('2d');
+  function resizeTorch(){
+    const rect=canvas.getBoundingClientRect();
+    tvCanvas.width =window.innerWidth;
+    tvCanvas.height=window.innerHeight;
+    tvCanvas.style.left='0'; tvCanvas.style.top='0';
+    tvCanvas.style.width='100%'; tvCanvas.style.height='100%';
+  }
+  window.addEventListener('resize',resizeTorch);
+  resizeTorch();
+
+  function drawTorch(){
+    const rect=canvas.getBoundingClientRect();
+    const cx=rect.left+(player.x+.5)*CELL*(rect.width/(COLS*CELL));
+    const cy=rect.top +(player.y+.5)*CELL*(rect.height/(ROWS*CELL));
+    const r =Math.min(rect.width,rect.height)*(.35-level*.02);
+    tvCtx.clearRect(0,0,tvCanvas.width,tvCanvas.height);
+    tvCtx.fillStyle='rgba(0,0,0,.88)';
+    tvCtx.fillRect(0,0,tvCanvas.width,tvCanvas.height);
+    const grad=tvCtx.createRadialGradient(cx,cy,r*.1,cx,cy,r);
+    grad.addColorStop(0,'rgba(0,0,0,0)');
+    grad.addColorStop(.7,'rgba(0,0,0,.3)');
+    grad.addColorStop(1,'rgba(0,0,0,.88)');
+    tvCtx.fillStyle=grad;
+    tvCtx.globalCompositeOperation='destination-out';
+    tvCtx.beginPath(); tvCtx.arc(cx,cy,r,0,Math.PI*2); tvCtx.fill();
+    tvCtx.globalCompositeOperation='source-over';
+  }
+
+  /* ---- Monster AI ---- */
+  function moveMonster(){
+    if(!gameRunning) return;
+    const d=dist(monster,player);
+    // If far, random walk; if close, BFS
+    if(d>8){
+      const dirs=[[0,-1],[0,1],[-1,0],[1,0]].filter(([dx,dy])=>{
+        const nx=monster.x+dx, ny=monster.y+dy;
+        return nx>=0&&nx<COLS&&ny>=0&&ny<ROWS&&maze[ny][nx]===0;
+      });
+      if(dirs.length){const[dx,dy]=dirs[Math.floor(Math.random()*dirs.length)];monster.x+=dx;monster.y+=dy;}
+    } else {
+      const next=bfsNext(monster,player,maze);
+      monster.x=next.x; monster.y=next.y;
+    }
+
+    // Check catch
+    if(monster.x===player.x&&monster.y===player.y){
+      caughtByMonster();
+    }
+    // Proximity warning
+    else if(d<=3){
+      document.getElementById('monster-flash').style.opacity=`${(.4-(d*.1)).toFixed(2)}`;
+      HorrorAudio.playTone(30+d*5,.3,'sawtooth',.04);
+      setTimeout(()=>document.getElementById('monster-flash').style.opacity='0',200);
+    }
+  }
+
+  /* ---- Player movement ---- */
+  function tryMove(dx,dy){
+    if(!gameRunning) return;
+    const nx=player.x+dx, ny=player.y+dy;
+    if(nx<0||nx>=COLS||ny<0||ny>=ROWS||maze[ny][nx]===1) return;
+    playerTrail.push({x:player.x,y:player.y});
+    if(playerTrail.length>12) playerTrail.shift();
+    player.x=nx; player.y=ny;
+    moveCount++;
+
+    // Win check
+    if(player.x===exit.x&&player.y===exit.y){ winLevel(); return; }
+
+    // Random ambient
+    if(moveCount%8===0) HorrorAudio.playTone(40,.2,'sine',.02);
+  }
+
+  document.addEventListener('keydown',e=>{
+    const map={'ArrowUp':[0,-1],'ArrowDown':[0,1],'ArrowLeft':[-1,0],'ArrowRight':[1,0],
+               'w':[0,-1],'s':[0,1],'a':[-1,0],'d':[1,0],
+               'W':[0,-1],'S':[0,1],'A':[-1,0],'D':[1,0]};
+    if(map[e.key]){ e.preventDefault(); tryMove(...map[e.key]); }
+  });
+  function dpadPress(dir){
+    const m={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};
+    tryMove(...m[dir]);
+  }
+
+  /* ---- Game states ---- */
+  function startGame(){
+    HorrorAudio.unlock();
+    document.getElementById('start-screen').classList.add('hidden');
+    initLevel();
+  }
+
+  function initLevel(){
+    maze=generateMaze(COLS,ROWS);
+    player={x:1,y:1};
+    monster={x:COLS-3,y:ROWS-3};
+    exit={x:COLS-2,y:ROWS-2};
+    playerTrail=[]; moveCount=0; scareDone=false;
+    gameRunning=true;
+    monsterSpeed=Math.max(300,800-level*60);
+    clearInterval(monsterIv);
+    monsterIv=setInterval(moveMonster,monsterSpeed);
+    // Timer
+    clearInterval(timerIv);
+    timerSec=0;
+    timerIv=setInterval(()=>{
+      timerSec++;
+      const m=Math.floor(timerSec/60), s=timerSec%60;
+      document.getElementById('hud-time').textContent=`${m}:${s<10?'0'+s:s}`;
+    },1000);
+    document.getElementById('hud-level').textContent=`Level ${level}`;
+    document.getElementById('hud-hearts').textContent='♥'.repeat(hearts);
+    drawGame();
+  }
+
+  function winLevel(){
+    gameRunning=false;
+    clearInterval(monsterIv); clearInterval(timerIv);
+    HorrorAudio.playTone(880,.4,'sine',.1);
+    HorrorAudio.playTone(1100,.4,'sine',.08);
+    document.getElementById('win-msg').textContent=
+      `Level ${level} cleared in ${Math.floor(timerSec/60)}:${(timerSec%60)<10?'0'+(timerSec%60):timerSec%60}! ${level>=5?'You beat the maze! 🏆':'One more level…'}`;
+    document.getElementById('win-screen').classList.remove('hidden');
+
+    // After level 5, trigger jumpscare instead of win
+    if(level>=5&&!scareDone){
+      scareDone=true;
+      document.getElementById('win-screen').classList.add('hidden');
+      setTimeout(()=>HorrorScare.run('👹','YOU THOUGHT YOU ESCAPED?!'),500);
+    }
+  }
+
+  function nextLevel(){
+    level++;
+    document.getElementById('win-screen').classList.add('hidden');
+    initLevel();
+  }
+
+  function caughtByMonster(){
+    gameRunning=false;
+    clearInterval(monsterIv); clearInterval(timerIv);
+    hearts=Math.max(0,hearts-1);
+    document.getElementById('monster-flash').style.opacity='0.8';
+    setTimeout(()=>document.getElementById('monster-flash').style.opacity='0',400);
+    HorrorFX.shake(20,600);
+    HorrorAudio.playScream();
+
+    if(hearts<=0){
+      // Game over — jumpscare
+      setTimeout(()=>HorrorScare.run('👹','GAME OVER!'),600);
+    } else {
+      document.getElementById('dead-msg').textContent=
+        `The monster caught you! ${hearts} ${hearts===1?'life':'lives'} remaining.`;
+      document.getElementById('dead-screen').classList.remove('hidden');
+    }
+  }
+
+  function restartGame(){
+    hearts=3; level=1;
+    document.getElementById('dead-screen').classList.add('hidden');
+    document.getElementById('win-screen').classList.add('hidden');
+    initLevel();
+  }
+  </script>
+</body>
+</html>

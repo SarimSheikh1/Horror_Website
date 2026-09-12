@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Dark Ritual — DarkVault</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=Special+Elite&family=Cinzel+Decorative:wght@400;700;900&family=UnifrakturMaguntia&display=swap" rel="stylesheet"/>
+  <style>
+    body { background: #02000a; }
+
+    .ritual-bg {
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse at 50% 50%, #0a0020 0%, #000 70%);
+      animation: ritualBg 6s ease-in-out infinite alternate;
+      pointer-events: none; z-index: 0;
+    }
+    @keyframes ritualBg {
+      0%   { background: radial-gradient(ellipse at 50% 50%, #0a0020 0%, #000 70%); }
+      100% { background: radial-gradient(ellipse at 50% 50%, #1a0030 0%, #050005 70%); }
+    }
+    .ritual-bg.awakened {
+      animation: ritualAwakened 1s ease-in-out infinite alternate;
+    }
+    @keyframes ritualAwakened {
+      0%   { background: radial-gradient(ellipse at 50% 50%, #3a0010 0%, #0a0000 70%); }
+      100% { background: radial-gradient(ellipse at 50% 50%, #2a0020 0%, #150005 70%); }
+    }
+
+    /* Candle ring with pentagram */
+    .ritual-stage {
+      position: relative; max-width: 600px; margin: 0 auto;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 40px 20px;
+    }
+    .candle-ring {
+      display: flex; gap: 28px; flex-wrap: wrap;
+      justify-content: center; margin: 30px 0;
+    }
+    .candle { cursor: pointer; }
+    .candle-flame {
+      width: 16px; height: 36px;
+      background: radial-gradient(ellipse at 50% 80%, #ffffff, #ffdd00, #ff6600, transparent);
+      border-radius: 50% 50% 20% 20%;
+      margin: 0 auto;
+      animation: flameDance 1.2s ease-in-out infinite alternate;
+      box-shadow: 0 0 16px #ff9900, 0 0 30px rgba(255,150,0,.4);
+    }
+    .candle.unlit .candle-flame {
+      background: rgba(80,60,0,.2); box-shadow: none; animation: none;
+    }
+    .candle-wick { width: 2px; height: 6px; background: #222; margin: 0 auto; }
+    .candle-body-wrap {
+      width: 20px; height: 64px;
+      background: linear-gradient(to right, #f0ead8, #e8dfc8, #f0ead8);
+      border-radius: 2px 2px 3px 3px;
+      position: relative; margin: 0 auto;
+      box-shadow: 1px 0 4px rgba(0,0,0,.5);
+    }
+    .candle-drips {
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 12px; overflow: hidden;
+    }
+    .candle-drip-drop {
+      position: absolute; background: rgba(220,200,160,.8);
+      border-radius: 0 0 50% 50%; width: 4px;
+    }
+    .candle-base-plate {
+      width: 28px; height: 6px; background: #6b5a3a;
+      border-radius: 2px; margin: 0 auto;
+    }
+    .candle-name {
+      font-family: var(--font-gothic); font-size: .55rem; letter-spacing: 2px;
+      color: #4a3a6a; text-transform: uppercase; text-align: center;
+      margin-top: 6px; transition: color .5s;
+    }
+    .candle.lit .candle-name { color: #aa88dd; }
+
+    /* Rune circle */
+    .rune-circle {
+      font-size: 5rem; margin: 0 0 10px;
+      transition: all 1s ease;
+      filter: drop-shadow(0 0 10px rgba(80,0,150,.4));
+    }
+    .rune-circle.awakened {
+      animation: runeSpin 4s linear infinite;
+      filter: drop-shadow(0 0 30px rgba(200,0,255,.8));
+      font-size: 6rem;
+    }
+    @keyframes runeSpin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+
+    /* Instruction scroll */
+    .scroll-box {
+      border: 1px solid #1a0a3a; padding: 24px 32px;
+      background: rgba(8,0,20,.7);
+      border-radius: 4px; max-width: 520px; width: 100%;
+      box-shadow: 0 0 30px rgba(80,0,150,.15), inset 0 0 20px rgba(0,0,0,.4);
+    }
+    .scroll-box h3 {
+      font-family: var(--font-gothic); font-size: .7rem; letter-spacing: 3px;
+      color: #5a2a8a; text-transform: uppercase; margin-bottom: 14px;
+    }
+    .scroll-box p { font-size: .85rem; color: #777; line-height: 1.8; }
+    .scroll-box p span.hi { color: #9966cc; font-style: italic; }
+
+    #ritual-status {
+      font-family: var(--font-gothic); font-size: 1rem; letter-spacing: 4px;
+      color: #5a2a8a; min-height: 28px; text-align: center; margin: 10px 0;
+      transition: color .5s;
+    }
+    #ritual-status.active { color: #dd44ff; text-shadow: 0 0 12px rgba(200,0,255,.5); }
+    #ritual-status.complete { color: #ff0000; text-shadow: 0 0 20px rgba(255,0,0,.7); animation: textFlicker 2s infinite; }
+    @keyframes textFlicker { 0%,100%{opacity:1}90%{opacity:1}91%{opacity:0}92%{opacity:1}95%{opacity:.3}96%{opacity:1} }
+
+    /* Incantation text */
+    .incantation {
+      font-family: var(--font-gothic); font-size: .8rem; letter-spacing: 4px;
+      color: #2a1a4a; text-transform: uppercase; text-align: center;
+      line-height: 2; max-width: 400px; margin: 0 auto;
+      transition: color 1s;
+    }
+    .incantation.active { color: #8844cc; text-shadow: 0 0 8px rgba(150,0,255,.3); }
+
+    /* Phase sections */
+    .phase-section {
+      max-width: 700px; margin: 0 auto; padding: 40px 20px;
+      opacity: 0; transition: opacity 1s ease;
+    }
+    .phase-section.visible { opacity: 1; }
+
+    .phase-card {
+      border: 1px solid #1a0a3a; background: rgba(8,0,18,.7);
+      padding: 28px 32px; border-radius: 4px; margin-bottom: 24px;
+      box-shadow: inset 0 0 20px rgba(0,0,0,.3);
+    }
+    .phase-tag { font-family: var(--font-gothic); font-size: .6rem; letter-spacing: 3px; color: #5a2a8a; text-transform: uppercase; margin-bottom: 8px; }
+    .phase-title { font-family: var(--font-gothic); font-size: 1.1rem; color: var(--ghost); margin-bottom: 12px; }
+    .phase-text { font-size: .88rem; color: #888; line-height: 1.9; }
+    .phase-text em { color: #aa66ff; }
+  </style>
+</head>
+<body>
+  <div class="ritual-bg" id="ritual-bg"></div>
+  <div id="flicker"></div>
+  <div class="vignette"></div>
+  <div id="particles"></div>
+  <div id="cursor"></div>
+  <div id="cursor-dot"></div>
+  <div class="blood-drip">
+    <span style="height:55px;animation-duration:4s"></span>
+    <span style="height:80px;animation-duration:5s;animation-delay:.7s"></span>
+    <span style="height:48px;animation-duration:3.6s;animation-delay:1.4s"></span>
+    <span style="height:100px;animation-duration:5.8s;animation-delay:.3s"></span>
+    <span style="height:68px;animation-duration:4.4s;animation-delay:2s"></span>
+    <span style="height:88px;animation-duration:5.3s;animation-delay:.9s"></span>
+  </div>
+
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">☠ DarkVault</a>
+    <button class="nav-hamburger" id="nav-burger"><span></span><span></span><span></span></button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="chapters.html">📖 Story</a></li>
+      <li><a href="asylum.html">🏚 Asylum</a></li>
+      <li><a href="forest.html">🌲 Forest</a></li>
+      <li><a href="ritual.html">🕯 Ritual</a></li>
+      <li><a href="gallery.html">🖼 Gallery</a></li>
+      <li><a href="jumpscare.html">💀 Scream</a></li>
+    </ul>
+  </nav>
+
+  <section class="page-hero" style="background:radial-gradient(ellipse at 50% 80%,#0a0020,#000);min-height:55vh">
+    <div style="position:relative;z-index:10;text-align:center">
+      <div style="font-size:4rem;margin-bottom:16px;filter:drop-shadow(0 0 20px rgba(150,0,255,.6))">🕯</div>
+      <h1 class="page-hero-title glitch" data-text="The Dark Ritual">The Dark Ritual</h1>
+      <p class="page-hero-sub">
+        The ancient text is clear. Five candles. One pentagram.<br>
+        <span style="color:#7722aa">Light them all and the gateway opens.</span><br>
+        <span style="color:#bb3333;font-size:.85rem">Once begun, the ritual cannot be stopped.</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- RITUAL STAGE -->
+  <section style="position:relative;z-index:10;padding:60px 0">
+    <div class="ritual-stage">
+
+      <!-- The instruction scroll -->
+      <div class="scroll-box reveal">
+        <h3>📜 The Ancient Instructions</h3>
+        <p>Light the five sacred candles in sequence. As each flame ignites, <span class="hi">speak the name aloud</span>. When all five burn together, the pentagram awakens. The boundary between worlds grows thin. <span class="hi">What comes through cannot be sent back.</span></p>
+      </div>
+
+      <!-- Incantation -->
+      <p class="incantation" id="incantation" style="margin-top:30px">
+        "Ex tenebris lux — ex luce tenebrae"<br>
+        "From darkness, light — from light, darkness"
+      </p>
+
+      <!-- Pentagram rune -->
+      <div class="rune-circle" id="rune">⛧</div>
+
+      <!-- Status -->
+      <p id="ritual-status">AWAITING FIRST FLAME…</p>
+
+      <!-- CANDLES -->
+      <div class="candle-ring">
+        <div class="candle unlit" id="c1" onclick="lightCandle(1)">
+          <div class="candle-flame"></div>
+          <div class="candle-wick"></div>
+          <div class="candle-body-wrap"><div class="candle-drips"></div></div>
+          <div class="candle-base-plate"></div>
+          <p class="candle-name">Ignis</p>
+        </div>
+        <div class="candle unlit" id="c2" onclick="lightCandle(2)">
+          <div class="candle-flame"></div>
+          <div class="candle-wick"></div>
+          <div class="candle-body-wrap"><div class="candle-drips"></div></div>
+          <div class="candle-base-plate"></div>
+          <p class="candle-name">Tenebra</p>
+        </div>
+        <div class="candle unlit" id="c3" onclick="lightCandle(3)">
+          <div class="candle-flame"></div>
+          <div class="candle-wick"></div>
+          <div class="candle-body-wrap"><div class="candle-drips"></div></div>
+          <div class="candle-base-plate"></div>
+          <p class="candle-name">Mortis</p>
+        </div>
+        <div class="candle unlit" id="c4" onclick="lightCandle(4)">
+          <div class="candle-flame"></div>
+          <div class="candle-wick"></div>
+          <div class="candle-body-wrap"><div class="candle-drips"></div></div>
+          <div class="candle-base-plate"></div>
+          <p class="candle-name">Animus</p>
+        </div>
+        <div class="candle unlit" id="c5" onclick="lightCandle(5)">
+          <div class="candle-flame"></div>
+          <div class="candle-wick"></div>
+          <div class="candle-body-wrap"><div class="candle-drips"></div></div>
+          <div class="candle-base-plate"></div>
+          <p class="candle-name">Lux</p>
+        </div>
+      </div>
+
+      <!-- Progress pips -->
+      <div style="display:flex;gap:10px;margin-bottom:20px">
+        <div class="pip" id="pip1" style="width:12px;height:12px;border-radius:50%;background:#1a0a3a;border:1px solid #2a1a4a;transition:all .5s"></div>
+        <div class="pip" id="pip2" style="width:12px;height:12px;border-radius:50%;background:#1a0a3a;border:1px solid #2a1a4a;transition:all .5s"></div>
+        <div class="pip" id="pip3" style="width:12px;height:12px;border-radius:50%;background:#1a0a3a;border:1px solid #2a1a4a;transition:all .5s"></div>
+        <div class="pip" id="pip4" style="width:12px;height:12px;border-radius:50%;background:#1a0a3a;border:1px solid #2a1a4a;transition:all .5s"></div>
+        <div class="pip" id="pip5" style="width:12px;height:12px;border-radius:50%;background:#1a0a3a;border:1px solid #2a1a4a;transition:all .5s"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RITUAL LORE -->
+  <section style="background:linear-gradient(to bottom,#02000a,#050010,#02000a);padding:60px 0;position:relative;z-index:10">
+    <div class="section-header reveal" style="padding:0 20px 40px">
+      <h2 class="section-title" style="color:#9966cc;text-shadow:0 0 20px rgba(150,0,255,.4)">The Five Sacred Flames</h2>
+      <div class="section-divider" style="color:#5a2a8a">⛧</div>
+    </div>
+    <div style="max-width:700px;margin:0 auto;padding:0 20px;display:grid;gap:20px">
+      <div class="phase-card reveal">
+        <p class="phase-tag">First Flame — IGNIS</p>
+        <h3 class="phase-title">The Fire of Awakening</h3>
+        <p class="phase-text">The first candle calls to the sleeping entity. It stirs in the place between dreams and death. <em>It becomes aware that a ritual has begun.</em> It turns its attention toward the flame. At this point you may still stop. The cost is small.</p>
+      </div>
+      <div class="phase-card reveal">
+        <p class="phase-tag">Second Flame — TENEBRA</p>
+        <h3 class="phase-title">The Fire of Darkness</h3>
+        <p class="phase-text">The shadows in the room deepen. Not metaphorically — the ambient light decreases measurably as the entity absorbs it. <em>It is feeding on the darkness you create.</em> Witnesses have reported hearing their own names whispered from empty corners at this stage.</p>
+      </div>
+      <div class="phase-card reveal">
+        <p class="phase-tag">Third Flame — MORTIS</p>
+        <h3 class="phase-title">The Fire of Death</h3>
+        <p class="phase-text">You cannot stop now. <em>The entity will not allow it.</em> The third flame burns with the colour of old blood. The barrier is now thin enough for impressions to pass through — emotions not your own, images behind your eyes, a presence standing just out of sight.</p>
+      </div>
+      <div class="phase-card reveal">
+        <p class="phase-tag">Fourth Flame — ANIMUS</p>
+        <h3 class="phase-title">The Fire of Souls</h3>
+        <p class="phase-text">The fourth flame summons the gateway. <em>Something is on the other side.</em> It presses against the barrier the way a face presses against glass. Four candles is enough to see it. Not enough to stop it from seeing you back. From this point it will know your face.</p>
+      </div>
+      <div class="phase-card reveal" style="border-color:var(--blood)">
+        <p class="phase-tag" style="color:var(--blood)">Fifth Flame — LUX</p>
+        <h3 class="phase-title">The Fire of No Return</h3>
+        <p class="phase-text" style="color:#aaa">The last candle completes the summoning. <em style="color:var(--crimson)">The gateway opens fully.</em> The entity crosses the boundary. It is now in the room with you. It has been waiting for this ritual for a very long time. Every version of it that has ever been performed, it remembers. It remembers you, specifically. <em style="color:var(--crimson)">Because you have done this before. You just don't remember.</em></p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span class="footer-logo">☠ DarkVault</span>
+    <ul class="footer-links">
+      <li><a href="index.html">Home</a></li><li><a href="chapters.html">Story</a></li>
+      <li><a href="asylum.html">Asylum</a></li><li><a href="forest.html">Forest</a></li>
+      <li><a href="gallery.html">Gallery</a></li><li><a href="jumpscare.html">Scream Room</a></li>
+    </ul>
+    <div class="footer-divider"></div>
+    <p class="footer-copy">© 2026 DarkVault · The ritual is complete. It knows your name. 😈</p>
+  </footer>
+
+  <div id="countdown-overlay"><div id="countdown-num">3</div><div id="countdown-label">THE RITUAL BEGINS…</div></div>
+  <div id="jumpscare-screen"><div id="scare-emoji">😱</div><div id="scare-text">BOO!</div></div>
+  <div id="aftermath-screen">
+    <div class="aftermath-skull">💀</div>
+    <h2 class="aftermath-title">GOTCHA! 😂</h2>
+    <p class="aftermath-msg">You completed the ritual and survived the scare! Now send this page to your friends and let them try.<br><em style="color:#ff6666">The entity will be waiting.</em></p>
+    <div class="aftermath-actions">
+      <button class="btn-horror" onclick="copyPrankLink()">📋 Share The Ritual</button>
+      <button class="btn-horror btn-ghost" onclick="location.reload()">🔄 Redo Ritual</button>
+      <a href="gallery.html" class="btn-horror btn-ghost">🖼 Visit Gallery</a>
+    </div>
+    <p id="copy-feedback" style="margin-top:16px;color:#55ff55;font-size:.9rem;opacity:0;transition:opacity .5s;min-height:22px"></p>
+  </div>
+
+  <script src="horror.js"></script>
+  <script>
+    let litCount = 0;
+    const candleNames = ['', 'Ignis', 'Tenebra', 'Mortis', 'Animus', 'Lux'];
+    const statusMessages = [
+      '',
+      'IGNIS BURNS… THE ENTITY STIRS.',
+      'TENEBRA AWAKENS… THE SHADOWS DEEPEN.',
+      'MORTIS BLAZES… THERE IS NO TURNING BACK.',
+      'ANIMUS IGNITES… IT SEES YOU NOW.',
+      '⛧ THE RITUAL IS COMPLETE ⛧'
+    ];
+
+    function lightCandle(n) {
+      if (document.getElementById('c' + n).classList.contains('lit')) return;
+      HorrorAudio.unlock();
+      HorrorAudio.playCandle();
+
+      document.getElementById('c' + n).classList.remove('unlit');
+      document.getElementById('c' + n).classList.add('lit');
+      document.getElementById('pip' + n).style.background = '#aa55ff';
+      document.getElementById('pip' + n).style.boxShadow = '0 0 8px #aa55ff';
+
+      litCount++;
+      const status = document.getElementById('ritual-status');
+      status.textContent = statusMessages[litCount];
+      status.className = litCount < 5 ? 'active' : 'complete';
+
+      const incant = document.getElementById('incantation');
+      incant.classList.add('active');
+
+      // Progressive effects
+      if (litCount >= 2) HorrorFX.shake(litCount * 2, 400);
+      if (litCount >= 3) {
+        document.getElementById('ritual-bg').classList.add('awakened');
+        HorrorAudio.playTone(40 + litCount * 15, 1, 'sawtooth', 0.05);
+      }
+      if (litCount >= 4) {
+        document.getElementById('rune').classList.add('awakened');
+        HorrorFX.flash('rgba(100,0,150,0.3)', 200);
+      }
+      if (litCount === 5) {
+        HorrorAudio.playRitualComplete();
+        HorrorFX.shake(20, 600);
+        HorrorFX.flash('rgba(150,0,255,0.5)', 300);
+        setTimeout(() => { HorrorScare.run('😈', 'IT FOUND YOU!'); }, 2500);
+      }
+    }
+  </script>
+</body>
+</html>

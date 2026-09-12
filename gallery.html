@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Horror Gallery — DarkVault</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=Special+Elite&family=Cinzel+Decorative:wght@400;700;900&family=UnifrakturMaguntia&display=swap" rel="stylesheet"/>
+  <style>
+    .gallery-masonry {
+      columns: 3; column-gap: 12px;
+      max-width: 1200px; margin: 0 auto; padding: 40px 20px;
+    }
+    .g-item {
+      break-inside: avoid; margin-bottom: 12px;
+      position: relative; overflow: hidden;
+      border: 1px solid #111; border-radius: 2px;
+      background: var(--panel); display: block;
+      transition: var(--transition);
+    }
+    .g-item:hover { border-color: var(--blood); box-shadow: 0 0 25px rgba(255,0,0,.3); z-index: 5; }
+    .g-inner {
+      width: 100%; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 30px 20px; text-align: center;
+      position: relative; min-height: 180px;
+    }
+    .g-emoji { font-size: clamp(2.5rem, 6vw, 4.5rem); transition: var(--transition); display: block; margin-bottom: 10px; }
+    .g-item:hover .g-emoji { transform: scale(1.15); filter: drop-shadow(0 0 14px rgba(255,0,0,.7)); }
+    .g-title { font-family: var(--font-gothic); font-size: .7rem; letter-spacing: 2px; color: var(--fog); text-transform: uppercase; margin-bottom: 4px; }
+    .g-sub { font-size: .72rem; color: #444; line-height: 1.5; }
+    .g-hover-text {
+      position: absolute; inset: 0; background: rgba(0,0,0,.92);
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px; opacity: 0; transition: opacity .3s;
+      font-size: .82rem; color: #bbb; line-height: 1.7; text-align: center;
+    }
+    .g-item:hover .g-hover-text { opacity: 1; }
+    .g-scare-flash {
+      position: fixed; inset: 0; z-index: 5000;
+      background: #000; display: none;
+      align-items: center; justify-content: center; flex-direction: column;
+    }
+    .g-scare-flash.show { display: flex; animation: scareFlash .08s step-end infinite; }
+    .g-scare-face { font-size: min(45vw, 40rem); animation: scareZoom .25s ease-out forwards; line-height: 1; }
+
+    /* Loading bar fake */
+    .loading-bar-wrap {
+      max-width: 700px; margin: 0 auto 20px; padding: 0 20px;
+    }
+    .loading-bar-track { height: 3px; background: #1a0000; border-radius: 2px; overflow: hidden; }
+    .loading-bar-fill { height: 100%; background: linear-gradient(90deg, var(--blood), var(--crimson));
+      width: 0%; transition: width .4s ease; box-shadow: 0 0 6px var(--blood); }
+    .loading-label { font-family: var(--font-gothic); font-size: .6rem; letter-spacing: 2px; color: #333;
+      text-transform: uppercase; text-align: right; margin-top: 6px; }
+
+    /* Filter tabs */
+    .filter-tabs { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; padding: 0 20px 30px; }
+    .filter-tab {
+      font-family: var(--font-gothic); font-size: .6rem; letter-spacing: 2px; text-transform: uppercase;
+      padding: 8px 16px; border: 1px solid #1a0000; background: transparent; color: #444;
+      border-radius: 2px; transition: var(--transition);
+    }
+    .filter-tab:hover, .filter-tab.active { color: var(--ghost); border-color: var(--blood); background: rgba(139,0,0,.15); }
+
+    @media(max-width:700px) { .gallery-masonry { columns: 2; } }
+    @media(max-width:420px) { .gallery-masonry { columns: 1; } }
+  </style>
+</head>
+<body>
+  <div id="flicker"></div>
+  <div class="vignette"></div>
+  <div id="particles"></div>
+  <div id="cursor"></div>
+  <div id="cursor-dot"></div>
+  <div class="blood-drip">
+    <span style="height:58px;animation-duration:4.1s"></span>
+    <span style="height:82px;animation-duration:5s;animation-delay:.7s"></span>
+    <span style="height:46px;animation-duration:3.6s;animation-delay:1.3s"></span>
+    <span style="height:102px;animation-duration:5.9s;animation-delay:.3s"></span>
+    <span style="height:66px;animation-duration:4.4s;animation-delay:2s"></span>
+    <span style="height:90px;animation-duration:5.2s;animation-delay:.9s"></span>
+    <span style="height:52px;animation-duration:3.8s;animation-delay:2.2s"></span>
+    <span style="height:76px;animation-duration:4.7s;animation-delay:.5s"></span>
+  </div>
+
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">☠ DarkVault</a>
+    <button class="nav-hamburger" id="nav-burger"><span></span><span></span><span></span></button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="chapters.html">📖 Story</a></li>
+      <li><a href="asylum.html">🏚 Asylum</a></li>
+      <li><a href="forest.html">🌲 Forest</a></li>
+      <li><a href="ritual.html">🕯 Ritual</a></li>
+      <li><a href="gallery.html">🖼 Gallery</a></li>
+      <li><a href="jumpscare.html">💀 Scream</a></li>
+    </ul>
+  </nav>
+
+  <section class="page-hero" style="background:radial-gradient(ellipse at 50% 80%,#1a1400,#000);min-height:50vh">
+    <div style="position:relative;z-index:10;text-align:center">
+      <div style="font-size:4rem;margin-bottom:16px;filter:drop-shadow(0 0 20px rgba(255,200,0,.4))">🖼</div>
+      <h1 class="page-hero-title glitch" data-text="The Horror Gallery">The Horror Gallery</h1>
+      <p class="page-hero-sub">
+        Each piece was found, not created.<br>
+        <span style="color:#bb3333">Hover at your own risk. Some images bite.</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- Fake loading -->
+  <div style="padding:30px 0 0">
+    <div class="loading-bar-wrap">
+      <div class="loading-bar-track"><div class="loading-bar-fill" id="loadbar"></div></div>
+      <p class="loading-label" id="load-label">Scanning exhibits for anomalies…</p>
+    </div>
+  </div>
+
+  <!-- Filter tabs -->
+  <div class="filter-tabs">
+    <button class="filter-tab active" onclick="filterGallery('all',this)">All Exhibits</button>
+    <button class="filter-tab" onclick="filterGallery('creatures',this)">👹 Creatures</button>
+    <button class="filter-tab" onclick="filterGallery('spirits',this)">👻 Spirits</button>
+    <button class="filter-tab" onclick="filterGallery('cursed',this)">💀 Cursed Objects</button>
+    <button class="filter-tab" onclick="filterGallery('places',this)">🏚 Haunted Places</button>
+  </div>
+
+  <!-- GALLERY MASONRY -->
+  <main class="gallery-masonry" id="gallery-grid">
+
+    <div class="g-item" data-cat="creatures" onclick="triggerGalleryScare('👹','GET BACK!')">
+      <div class="g-inner" style="background:radial-gradient(ellipse,#1a0800,#000)">
+        <span class="g-emoji">👹</span>
+        <p class="g-title">Exhibit 001 — The Devourer</p>
+        <p class="g-sub">Found in Siberia, 1934. Photographer unknown.</p>
+      </div>
+      <div class="g-hover-text">"The subject was photographed over 48 hours. In each subsequent image, the figure is closer to the camera. The final image shows only darkness and two reflective eyes."</div>
+    </div>
+
+    <div class="g-item" data-cat="spirits" onclick="triggerGalleryScare('👻','SHE NEVER LEFT!')">
+      <div class="g-inner" style="background:radial-gradient(ellipse,#0a0a1a,#000);min-height:220px">
+        <span class="g-emoji">👻</span>
+        <p class="g-title">Exhibit 002 — The Bride of Morrow House</p>
+        <p class="g-sub">Morrow House, 1887. Anomaly unexplained.</p>
+      </div>
+      <div class="g-hover-text">"The woman in white appears in the background of over 200 photographs taken at Morrow House across six decades. She has never aged. She is always watching the camera."</div>
+    </div>
+
+    <div class="g-item" data-cat="cursed">
+      <div class="g-inner" style="background:radial-gradient(ellipse,#1a0000,#000)">
+        <span class="g-emoji">🪆</span>
+        <p class="g-title">Exhibit 003 — The Listening Doll</p>
+        <p class="g-sub">Romania, 1962. Confiscated by authorities.</p>
+      </div>
+      <div class="g-hover-text">"Every owner of this doll reported the same experience: waking at 3 AM to find the doll positioned differently. Four owners are deceased. The doll's expression changes between photographs."</div>
+    </div>
+
+    <div class="g-item" data-cat="places" onclick="triggerGalleryScare('🏚','IT LIVES IN THE WALLS!')">
+      <div class="g-inner" style="background:radial-gradient(ellipse,#0a0800,#000);min-height:200px">
+        <span class="g-emoji">🏚</span>
+        <p class="g-title">Exhibit 004 — Gallows Road #7</p>
+        <p class="g-sub">Photographed at 3:14 AM, 2023.</p>
+      </div>
+      <div class="g-hover-text">"The house has been empty since 1993. The light in the upper window has been burning continuously for 31 years. The electricity was disconnected on October 14, 1993."</div>
+    </div>
+
+    <div class="g-item" data-cat="creatures">
+      <div class="g-inner" style="background:radial-gradient(ellipse,#001a00,#000);min-height:240px">
+        <span class="g-emoji">🕷️</span>
+        <p class="g-title">Exhibit 005 — The Nest</p>
+        <p class="g-sub">Amazonia, 2019. Expedition log Entry 19.</p>
+      </div>
+      <div class="g-hover-text">"The nest was the size of a small room. The expedition team photographed it at 14:00. By 14:07 all six members had vacated the area. They declined to explain why. Three have not spoken publicly since."</div>
+    </div>
+
+    <div class="g-item" data-cat="cursed" onclick="triggerGalleryScare('💀','YOU LOOKED TOO LONG!')">
+      <div class="g-inner" style="background:radial-gradient(ellipse,#1a0000,#000)">
+        <span class="g-emoji">🪞</span>
+        <p class="g-title">Exhibit 006 — The Hargrove Mirror</p>
+        <p class="g-sub">Retrieved from Gallows Road. Currently sealed.</p>
+      </div>
+      <div class="g-hover-text">"Three curators have resigned since the mirror entered the collection. Each reported the same incident: their reflection continuing to move after they had stopped. The mirror is now kept covered at all times."</div>
+    </div>
+
+    <div class="g-item" data-cat="spirits">
+      <div class="g-inner" style="background:radial-gradient(ellipse,#0a001a,#000);min-height:210px">
+        <span class="g-emoji">🌀</span>
+        <p class="g-title">Exhibit 007 — The Doorway</p>
+        <p class="g-sub">Origin unknown. Submitted anonymously.</p>
+      </div>
+      <div class="g-hover-text">"The photograph depicts a doorway in an unidentified location. Within the darkness beyond, digital analysis reveals the outlines of approximately 14 distinct humanoid figures. All appear to be facing outward."</div>
+    </div>
+
+    <div class="g-item" data-cat="creatures" onclick="triggerGalleryScare('🤡','THE CLOWN IS REAL!')">
+      <div class="g-inner" style="background:radial-gradient(ellipse,#1a0010,#000)">
+        <span class="g-emoji">🤡</span>
+        <p class="g-title">Exhibit 008 — Visitor #47</p>
+        <p class="g-sub">CCTV still, children's ward, 2018.</p>
+      </div>
+      <div class="g-hover-text">"The figure appeared on CCTV footage at 3:14 AM. No visitor signed in. No visitor signed out. Staff on duty that night reported hearing laughter in empty corridors. The footage covers a 6-hour window. The figure appears in 847 individual frames."</div>
+    </div>
+
+    <div class="g-item" data-cat="places">
+      <div class="g-inner" style="background:radial-gradient(ellipse,#001000,#000);min-height:200px">
+        <span class="g-emoji">🌲</span>
+        <p class="g-title">Exhibit 009 — The Last Photo</p>
+        <p class="g-sub">Found on a recovered camera, Grimvale Forest.</p>
+      </div>
+      <div class="g-hover-text">"The camera was found half a mile from the forest edge. The memory card contained 412 photographs taken over 72 hours — far longer than the hiker was reported missing. The final photograph is entirely black except for two points of light. Analysis suggests they are eyes. Very close to the lens."</div>
+    </div>
+
+    <div class="g-item" data-cat="cursed">
+      <div class="g-inner" style="background:radial-gradient(ellipse,#0a0a00,#000)">
+        <span class="g-emoji">📼</span>
+        <p class="g-title">Exhibit 010 — The Tape</p>
+        <p class="g-sub">VHS. 1987. Contents classified.</p>
+      </div>
+      <div class="g-hover-text">"The tape contains 7 minutes of footage. The first 6 minutes are static. In the final minute, a child's voice counts backwards from 10. At zero, the static clears briefly. No one who has watched the complete tape has agreed to describe what appears."</div>
+    </div>
+
+    <div class="g-item" data-cat="spirits" onclick="triggerGalleryScare('😱','IT FOLLOWED YOU HERE!')">
+      <div class="g-inner" style="background:radial-gradient(ellipse,#0a0a0a,#000);min-height:230px">
+        <span class="g-emoji">🕯️</span>
+        <p class="g-title">Exhibit 011 — The Vigil</p>
+        <p class="g-sub">Photograph taken in an empty room.</p>
+      </div>
+      <div class="g-hover-text">"The candles were placed in the room and ignited. The photographer left immediately and triggered the shutter remotely. In the photograph, a figure stands among the candles. The candles cast no shadow on it. It casts a shadow on the candles."</div>
+    </div>
+
+    <div class="g-item" data-cat="creatures">
+      <div class="g-inner" style="background:radial-gradient(ellipse,#1a0500,#000)">
+        <span class="g-emoji">🌊</span>
+        <p class="g-title">Exhibit 012 — The Deep</p>
+        <p class="g-sub">Underwater photograph, Pacific, 2021.</p>
+      </div>
+      <div class="g-hover-text">"Taken at 4,200 metres depth by an unmanned probe. The object in the frame does not appear in any marine biology database. It appears to be looking at the probe. The second photograph, taken 3 seconds later, shows only empty water. The probe's onboard microphone recorded something that the team described as 'not a sound that water should be able to make.'"</div>
+    </div>
+
+  </main>
+
+  <!-- Gallery scare overlay -->
+  <div class="g-scare-flash" id="g-scare">
+    <div class="g-scare-face" id="g-scare-face">😱</div>
+  </div>
+
+  <!-- CTA -->
+  <section style="padding:60px 40px;text-align:center;background:linear-gradient(to bottom,#050505,#0a0000)">
+    <div class="reveal">
+      <h2 class="section-title" style="margin-bottom:16px">📋 You've Seen Too Much</h2>
+      <p style="color:#666;max-width:460px;margin:0 auto 28px;font-size:.9rem;line-height:1.8">
+        Share this gallery with your friends. Make them hover every exhibit. Watch their reactions.
+      </p>
+      <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+        <button class="btn-horror" onclick="copyPrankLink()">📋 Share The Gallery</button>
+        <a href="jumpscare.html" class="btn-horror btn-ghost">💀 Go To Scream Room</a>
+      </div>
+      <p id="copy-feedback" style="margin-top:14px;color:#55ff55;font-size:.9rem;opacity:0;transition:opacity .5s;min-height:20px"></p>
+    </div>
+  </section>
+
+  <footer>
+    <span class="footer-logo">☠ DarkVault</span>
+    <ul class="footer-links">
+      <li><a href="index.html">Home</a></li><li><a href="chapters.html">Story</a></li>
+      <li><a href="asylum.html">Asylum</a></li><li><a href="forest.html">Forest</a></li>
+      <li><a href="ritual.html">Ritual</a></li><li><a href="jumpscare.html">Scream Room</a></li>
+    </ul>
+    <div class="footer-divider"></div>
+    <p class="footer-copy">© 2026 DarkVault · The exhibits are watching you leave 😈</p>
+  </footer>
+
+  <div id="countdown-overlay"><div id="countdown-num">3</div><div id="countdown-label">BRACE YOURSELF…</div></div>
+  <div id="jumpscare-screen"><div id="scare-emoji">😱</div><div id="scare-text">BOO!</div></div>
+  <div id="aftermath-screen">
+    <div class="aftermath-skull">💀</div>
+    <h2 class="aftermath-title">GOTCHA! 😂</h2>
+    <p class="aftermath-msg">You triggered an exhibit! Share the gallery and scare your friends.<br><em style="color:#ff6666">Every hover is a risk.</em></p>
+    <div class="aftermath-actions">
+      <button class="btn-horror" onclick="copyPrankLink()">📋 Share The Gallery</button>
+      <button class="btn-horror btn-ghost" onclick="location.reload()">🔄 Browse Again</button>
+    </div>
+    <p id="copy-feedback" style="margin-top:16px;color:#55ff55;font-size:.9rem;opacity:0;transition:opacity .5s;min-height:22px"></p>
+  </div>
+
+  <script src="horror.js"></script>
+  <script>
+    // Fake progressive loading
+    const loadbar   = document.getElementById('loadbar');
+    const loadLabel = document.getElementById('load-label');
+    const stages    = ['Scanning exhibits for anomalies…','Calibrating scare sensors…','Loading cursed artefacts…','Verifying containment protocols…','All exhibits active — proceed with caution'];
+    let prog = 0, stage = 0;
+    const loadIv = setInterval(() => {
+      prog += 3 + Math.random() * 5;
+      if (prog >= 100) { prog = 100; clearInterval(loadIv); }
+      loadbar.style.width = prog + '%';
+      const si = Math.floor((prog / 100) * (stages.length - 1));
+      if (si !== stage) { stage = si; loadLabel.textContent = stages[stage]; }
+    }, 120);
+
+    // Random hover scares on certain items (no onclick)
+    document.querySelectorAll('.g-item:not([onclick])').forEach(item => {
+      let hoverTimer = null;
+      item.addEventListener('mouseenter', () => {
+        HorrorAudio.unlock();
+        HorrorAudio.playGhost();
+        if (Math.random() < 0.35) {
+          hoverTimer = setTimeout(() => {
+            HorrorFX.shake(6, 300);
+            HorrorFX.flash('rgba(255,0,0,0.15)', 120);
+          }, 1200 + Math.random() * 800);
+        }
+      });
+      item.addEventListener('mouseleave', () => clearTimeout(hoverTimer));
+    });
+
+    function triggerGalleryScare(face, text) {
+      HorrorAudio.unlock();
+      const el   = document.getElementById('g-scare');
+      const face_el = document.getElementById('g-scare-face');
+      face_el.textContent = face;
+      el.classList.add('show');
+      HorrorAudio.playScream();
+      HorrorFX.shake(25, 600);
+      setTimeout(() => {
+        el.classList.remove('show');
+        document.getElementById('aftermath-screen').classList.add('show');
+      }, 2200);
+    }
+
+    function filterGallery(cat, btn) {
+      document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.g-item').forEach(item => {
+        item.style.display = (cat === 'all' || item.dataset.cat === cat) ? 'block' : 'none';
+      });
+    }
+  </script>
+</body>
+</html>

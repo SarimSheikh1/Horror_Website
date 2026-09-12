@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DarkVault — The World's Most Terrifying Website</title>
+  <meta name="description" content="Enter DarkVault — the world's most terrifying horror experience. Multiple haunted rooms, jump scares, and psychological horror await."/>
+  <link rel="stylesheet" href="styles.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=Special+Elite&family=Cinzel+Decorative:wght@400;700;900&family=UnifrakturMaguntia&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <!-- Layers -->
+  <div id="flicker"></div>
+  <div class="vignette"></div>
+  <div id="particles"></div>
+  <div id="cursor"></div>
+  <div id="cursor-dot"></div>
+
+  <!-- Blood drip -->
+  <div class="blood-drip">
+    <span style="height:65px;animation-duration:4.1s"></span>
+    <span style="height:95px;animation-duration:5.3s;animation-delay:.7s"></span>
+    <span style="height:50px;animation-duration:3.8s;animation-delay:1.4s"></span>
+    <span style="height:120px;animation-duration:6.1s;animation-delay:.3s"></span>
+    <span style="height:75px;animation-duration:4.7s;animation-delay:2s"></span>
+    <span style="height:45px;animation-duration:3.3s;animation-delay:1.1s"></span>
+    <span style="height:100px;animation-duration:5.9s;animation-delay:.5s"></span>
+    <span style="height:60px;animation-duration:4.4s;animation-delay:1.8s"></span>
+    <span style="height:85px;animation-duration:5.1s;animation-delay:.9s"></span>
+    <span style="height:55px;animation-duration:3.6s;animation-delay:2.4s"></span>
+    <span style="height:110px;animation-duration:5.7s;animation-delay:.2s"></span>
+    <span style="height:70px;animation-duration:4.9s;animation-delay:1.6s"></span>
+  </div>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">☠ DarkVault</a>
+    <button class="nav-hamburger" id="nav-burger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="login.html">🔐 Login</a></li>
+      <li><a href="urdu-story.html">� Kahani</a></li>
+      <li><a href="killer.html">🔪 Killer</a></li>
+      <li><a href="chapters.html">📖 Story</a></li>
+      <li><a href="asylum.html">🏚 Asylum</a></li>
+      <li><a href="forest.html">🌲 Forest</a></li>
+      <li><a href="ritual.html">🕯 Ritual</a></li>
+      <li><a href="ouija.html">� Ouija</a></li>
+      <li><a href="maze.html">🌀 Maze</a></li>
+      <li><a href="gallery.html">🖼 Gallery</a></li>
+      <li><a href="jumpscare.html">💀 Scream</a></li>
+    </ul>
+  </nav>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+
+    <!-- Animated fog rings -->
+    <div style="position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:2">
+      <div style="position:absolute;bottom:-60px;left:50%;transform:translateX(-50%);width:140%;height:300px;
+        background:radial-gradient(ellipse at 50% 100%,rgba(20,0,0,0.9) 0%,transparent 70%);
+        animation:bgBreath 6s ease-in-out infinite alternate;"></div>
+    </div>
+
+    <div class="hero-content" style="position:relative;z-index:10">
+
+      <!-- Intro gate emoji art -->
+      <div style="font-size:clamp(2.5rem,6vw,5rem);letter-spacing:6px;margin-bottom:16px;
+        animation:fadeSlideUp 1s ease-out 0.2s both;
+        filter:drop-shadow(0 0 20px rgba(255,0,0,0.6))">
+        🕯️ ☠️ 🕯️
+      </div>
+
+      <h1 class="site-logo glitch" data-text="DarkVault">DarkVault</h1>
+      <p class="site-tagline">The World's Most Terrifying Horror Experience</p>
+
+      <div class="warning-banner reveal" style="animation:fadeSlideUp 1s ease-out 0.8s both;opacity:0">
+        <span class="w-icon">⚠️</span>
+        <p><strong>EXTREME WARNING:</strong> This site contains violent jump scares, disturbing imagery,
+          psychological horror and loud audio. Not suitable for heart conditions, anxiety disorders,
+          or the faint of heart. <em>You have been warned.</em></p>
+      </div>
+
+      <div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-top:40px;
+        animation:fadeSlideUp 1s ease-out 1s both;opacity:0">
+        <button class="btn-horror" onclick="HorrorScare.run('😱','WELCOME TO HELL!')">
+          💀 Enter The Vault
+        </button>
+        <a href="chapters.html" class="btn-horror btn-ghost">📖 Read The Story</a>
+      </div>
+
+      <p id="dare-msg" style="margin-top:32px;font-style:italic;color:#bb3333;
+        min-height:24px;font-size:1rem;text-shadow:0 0 8px rgba(255,0,0,0.4);
+        animation:fadeSlideUp 1s ease-out 1.3s both;opacity:0">
+        Something is already watching you...
+      </p>
+    </div>
+
+    <!-- Gate silhouette -->
+    <svg class="hero-gate" viewBox="0 0 700 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0" y="200" width="700" height="100" fill="#8b0000" opacity="0.3"/>
+      <rect x="60" y="60" width="30" height="200" fill="#8b0000"/>
+      <rect x="610" y="60" width="30" height="200" fill="#8b0000"/>
+      <path d="M90 60 Q350 -40 610 60" stroke="#8b0000" stroke-width="6" fill="none"/>
+      <rect x="40" y="50" width="70" height="18" rx="2" fill="#8b0000"/>
+      <rect x="590" y="50" width="70" height="18" rx="2" fill="#8b0000"/>
+      <circle cx="350" cy="30" r="22" fill="#8b0000"/>
+      <text x="343" y="38" fill="#000" font-size="20">☠</text>
+      <line x1="90" y1="60" x2="610" y2="60" stroke="#5a0000" stroke-width="3"/>
+      <rect x="200" y="100" width="20" height="160" fill="#5a0000"/>
+      <rect x="480" y="100" width="20" height="160" fill="#5a0000"/>
+      <rect x="280" y="100" width="20" height="160" fill="#5a0000"/>
+      <rect x="400" y="100" width="20" height="160" fill="#5a0000"/>
+    </svg>
+  </section>
+
+  <!-- ===== LIVE STATS ===== -->
+  <div class="stats-bar reveal">
+    <div class="stat-item">
+      <span class="stat-num" id="stat-victims">847,293</span>
+      <span class="stat-label">Victims Claimed</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num" id="stat-screams">2,341,887</span>
+      <span class="stat-label">Screams Recorded</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num" id="stat-escapes">3</span>
+      <span class="stat-label">Survivors</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num" style="color:#ffcc00">★★★★★</span>
+      <span class="stat-label">Fear Rating</span>
+    </div>
+  </div>
+
+  <!-- ===== EXPERIENCES GRID ===== -->
+  <section class="experiences">
+    <div class="section-header reveal">
+      <h2 class="section-title">Choose Your Nightmare</h2>
+      <div class="section-divider">☠</div>
+      <p style="color:#777;max-width:500px;margin:20px auto 0;font-size:0.9rem;line-height:1.8">
+        Ten chambers of pure terror. Each one darker than the last.
+        No one leaves unchanged.
+      </p>
+    </div>
+
+    <div class="cards-grid">
+
+      <a href="chapters.html" class="horror-card">
+        <div class="card-thumb chapters">
+          <span style="font-size:5rem;filter:drop-shadow(0 0 20px rgba(255,0,0,0.6))">📖</span>
+        </div>
+        <div class="card-body">
+          <p class="card-tag">⚡ Interactive Horror Story</p>
+          <h3 class="card-title">The Whispering Dark</h3>
+          <p class="card-desc">Seven chapters of escalating psychological horror. Each page turn pulls you deeper into madness. Some readers never finish.</p>
+          <span class="card-btn">Read Now →</span>
+        </div>
+      </a>
+
+      <a href="asylum.html" class="horror-card">
+        <div class="card-thumb asylum">
+          <span style="font-size:5rem;filter:drop-shadow(0 0 20px rgba(255,80,0,0.6))">🏚</span>
+        </div>
+        <div class="card-body">
+          <p class="card-tag">🔒 Abandoned & Forgotten</p>
+          <h3 class="card-title">Blackwood Asylum</h3>
+          <p class="card-desc">Walk the corridors of an abandoned psychiatric hospital. The patients are still here — they never left.</p>
+          <span class="card-btn">Enter Asylum →</span>
+        </div>
+      </a>
+
+      <a href="forest.html" class="horror-card">
+        <div class="card-thumb forest">
+          <span style="font-size:5rem;filter:drop-shadow(0 0 20px rgba(0,80,0,0.6))">🌲</span>
+        </div>
+        <div class="card-body">
+          <p class="card-tag">🌑 No Path Back</p>
+          <h3 class="card-title">The Cursed Forest</h3>
+          <p class="card-desc">You enter at dusk. The trees close in. Every step forward leads deeper into something ancient and hungry.</p>
+          <span class="card-btn">Enter Forest →</span>
+        </div>
+      </a>
+
+      <a href="ritual.html" class="horror-card">
+        <div class="card-thumb ritual">
+          <span style="font-size:5rem;filter:drop-shadow(0 0 20px rgba(80,0,150,0.6))">🕯</span>
+        </div>
+        <div class="card-body">
+          <p class="card-tag">🔮 The Summoning</p>
+          <h3 class="card-title">The Dark Ritual</h3>
+          <p class="card-desc">Light all five candles and complete the ancient summoning. But be warned — once the ritual begins, it cannot be stopped.</p>
+          <span class="card-btn">Begin Ritual →</span>
+        </div>
+      </a>
+
+      <a href="gallery.html" class="horror-card">
+        <div class="card-thumb gallery">
+          <span style="font-size:5rem;filter:drop-shadow(0 0 20px rgba(150,150,0,0.6))">🖼</span>
+        </div>
+        <div class="card-body">
+          <p class="card-tag">👁 They Watch You Back</p>
+          <h3 class="card-title">The Horror Gallery</h3>
+          <p class="card-desc">A curated collection of cursed images. Hover if you dare. Each one hides something you cannot unsee.</p>
+          <span class="card-btn">View Gallery →</span>
+        </div>
+      </a>
+
+      <a href="jumpscare.html" class="horror-card">
+        <div class="card-thumb scare">
+          <span style="font-size:5rem;filter:drop-shadow(0 0 20px rgba(255,0,80,0.6))">💀</span>
+        </div>
+        <div class="card-body">
+          <p class="card-tag">🔊 Maximum Fright</p>
+          <h3 class="card-title">Scream Room</h3>
+          <p class="card-desc">Choose your weapon. Six different custom jump scares engineered to obliterate your composure. Share the link. Watch friends suffer.</p>
+          <span class="card-btn">Enter Scream Room →</span>
+        </div>
+      </a>
+
+      <a href="login.html" class="horror-card">
+        <div class="card-thumb" style="background:radial-gradient(ellipse,#0d0010,#000)">
+          <span style="font-size:5rem;filter:drop-shadow(0 0 20px rgba(150,0,200,0.6))">🔐</span>
+        </div>
+        <div class="card-body">
+          <p class="card-tag">⚠ At Your Own Risk</p>
+          <h3 class="card-title">Login — Andar Aao</h3>
+          <p class="card-desc">Sign up ya login karo — agar himmat hai toh. Har account ek curse ke saath aata hai. Proceed with caution. 😈</p>
+          <span class="card-btn">Login Karo →</span>
+        </div>
+      </a>
+
+      <a href="urdu-story.html" class="horror-card">
+        <div class="card-thumb" style="background:radial-gradient(ellipse,#0f0800,#000)">
+          <span style="font-size:5rem;filter:drop-shadow(0 0 20px rgba(200,150,0,0.6))">📜</span>
+        </div>
+        <div class="card-body">
+          <p class="card-tag">🇵🇰 Roman Urdu + English</p>
+          <h3 class="card-title">Andheri Kahani</h3>
+          <p class="card-desc">7 fasl ki khoofnak kahani — Roman Urdu aur English dono mein. Maut ke manzar. Qatil. Aur woh jo tumhare peeche hai.</p>
+          <span class="card-btn">Kahani Parho →</span>
+        </div>
+      </a>
+
+      <a href="killer.html" class="horror-card">
+        <div class="card-thumb" style="background:radial-gradient(ellipse,#1a0000,#000)">
+          <span style="font-size:5rem;filter:drop-shadow(0 0 20px rgba(255,0,0,0.8))">🔪</span>
+        </div>
+        <div class="card-body">
+          <p class="card-tag">🔴 Active Threat — AT LARGE</p>
+          <h3 class="card-title">The Killer — Hargrove</h3>
+          <p class="card-desc">5 confirmed victims. Never caught. Victim #6 has already been chosen. A live countdown shows how much time you have left.</p>
+          <span class="card-btn">View Case File →</span>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ===== SEND TO FRIENDS ===== -->
+  <section style="padding:80px 40px;text-align:center;background:linear-gradient(to bottom,#050505,#0a0000,#050505)">
+    <div class="reveal">
+      <h2 class="section-title" style="margin-bottom:16px">🕷 Prank Your Friends 🕷</h2>
+      <p style="color:#777;max-width:500px;margin:0 auto 36px;font-size:0.95rem;line-height:1.8">
+        Copy the link. Send it to someone you love. Wait for their scream.
+        The best prank site in existence — weaponised for your entertainment.
+      </p>
+      <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+        <button class="btn-horror" onclick="copyPrankLink()">📋 Copy Prank Link</button>
+        <button class="btn-horror btn-ghost" onclick="HorrorScare.run('🤡','FOOLED YOU!')">🤡 Test Jump Scare</button>
+        <button class="btn-horror" style="background:linear-gradient(135deg,#4a0000,#1a0000);border-color:#aa0000;letter-spacing:2px"
+          onclick="darauScare()">
+          😈 Daro Mat — Andar Aao!
+        </button>
+      </div>
+      <p id="copy-feedback" style="margin-top:16px;color:#55ff55;font-size:0.9rem;opacity:0;transition:opacity .5s;min-height:22px"></p>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer>
+    <span class="footer-logo">☠ DarkVault</span>
+    <ul class="footer-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="login.html">Login</a></li>
+      <li><a href="urdu-story.html">Kahani</a></li>
+      <li><a href="killer.html">Killer</a></li>
+      <li><a href="chapters.html">Story</a></li>
+      <li><a href="asylum.html">Asylum</a></li>
+      <li><a href="ritual.html">Ritual</a></li>
+      <li><a href="gallery.html">Gallery</a></li>
+      <li><a href="jumpscare.html">Scream Room</a></li>
+    </ul>
+    <div class="footer-divider"></div>
+    <p class="footer-copy">© 2026 DarkVault · Built to terrify · Share responsibly 😈</p>
+  </footer>
+
+  <!-- ===== OVERLAYS ===== -->
+  <div id="countdown-overlay">
+    <div id="countdown-num">3</div>
+    <div id="countdown-label">BRACE YOURSELF…</div>
+  </div>
+  <div id="jumpscare-screen">
+    <div id="scare-emoji">😱</div>
+    <div id="scare-text">BOO!</div>
+  </div>
+  <div id="aftermath-screen">
+    <div class="aftermath-skull">💀</div>
+    <h2 class="aftermath-title">GOTCHA! 😂</h2>
+    <p class="aftermath-msg">
+      You just got pranked by DarkVault — the world's most terrifying website! 👻<br>
+      Did you scream? Be honest...<br>
+      <em style="color:#ff6666">Now share the link and destroy someone else's day.</em>
+    </p>
+    <div class="aftermath-actions">
+      <button class="btn-horror" onclick="copyPrankLink()">📋 Share The Prank</button>
+      <button class="btn-horror btn-ghost" onclick="location.reload()">🔄 Do It Again</button>
+      <a href="jumpscare.html" class="btn-horror btn-ghost">💀 More Scares</a>
+    </div>
+    <p id="copy-feedback" style="margin-top:16px;color:#55ff55;font-size:0.9rem;opacity:0;transition:opacity .5s;min-height:22px"></p>
+  </div>
+
+  <script src="horror.js"></script>
+  <script>
+    // Rotating dare messages
+    const dares = [
+      'Something is already watching you...',
+      'It knows you opened this page.',
+      'Do not look behind you.',
+      'You are not alone right now.',
+      'The last visitor never came back.',
+      'Your mouse is being controlled...',
+      'They can see your face through the screen.',
+      'Close this tab. While you still can.',
+    ];
+    // Roman Urdu scare button
+    function darauScare() {
+      HorrorAudio.unlock();
+      // Show a Roman Urdu dare message first, then full jumpscare
+      const dareEl = document.getElementById('dare-msg');
+      const urduDares = [
+        'Yeh website bohot khatarnak hai... ab bahut der ho gayi! 😱',
+        'Peechay mat dekho... woh aa gaya! 👹',
+        'Tum andar aa gaye... nikalna mushkil hai! 💀',
+      ];
+      dareEl.style.color = '#ff0000';
+      dareEl.textContent = urduDares[Math.floor(Math.random() * urduDares.length)];
+      HorrorFX.shake(6, 400);
+      HorrorAudio.playTone(60, 1, 'sawtooth', 0.07);
+      setTimeout(() => HorrorScare.run('👹', 'PAKRA GAYA! 😂'), 2000);
+    }
+
+    let di = 0;
+    const dareEl = document.getElementById('dare-msg');
+    setInterval(() => {
+      dareEl.style.opacity = 0;
+      setTimeout(() => {
+        di = (di + 1) % dares.length;
+        dareEl.textContent = dares[di];
+        dareEl.style.transition = 'opacity 1s';
+        dareEl.style.opacity = 1;
+      }, 600);
+    }, 4000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Whispering Dark — DarkVault</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=Special+Elite&family=Cinzel+Decorative:wght@400;700;900&family=UnifrakturMaguntia&display=swap" rel="stylesheet"/>
+</head>
+<body>
+  <div id="flicker"></div>
+  <div class="vignette"></div>
+  <div id="particles"></div>
+  <div id="cursor"></div>
+  <div id="cursor-dot"></div>
+
+  <div class="blood-drip">
+    <span style="height:55px;animation-duration:4s"></span>
+    <span style="height:80px;animation-duration:5s;animation-delay:.6s"></span>
+    <span style="height:45px;animation-duration:3.5s;animation-delay:1.2s"></span>
+    <span style="height:100px;animation-duration:5.8s;animation-delay:.2s"></span>
+    <span style="height:65px;animation-duration:4.3s;animation-delay:1.9s"></span>
+    <span style="height:90px;animation-duration:5.5s;animation-delay:.8s"></span>
+    <span style="height:50px;animation-duration:3.9s;animation-delay:2.2s"></span>
+    <span style="height:75px;animation-duration:4.7s;animation-delay:.4s"></span>
+  </div>
+
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">☠ DarkVault</a>
+    <button class="nav-hamburger" id="nav-burger"><span></span><span></span><span></span></button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="chapters.html">📖 Story</a></li>
+      <li><a href="asylum.html">🏚 Asylum</a></li>
+      <li><a href="forest.html">🌲 Forest</a></li>
+      <li><a href="ritual.html">🕯 Ritual</a></li>
+      <li><a href="gallery.html">🖼 Gallery</a></li>
+      <li><a href="jumpscare.html">💀 Scream</a></li>
+    </ul>
+  </nav>
+
+  <!-- PAGE HERO -->
+  <section class="page-hero" style="background:radial-gradient(ellipse at 50% 80%,#1a0000,#000)">
+    <div style="position:relative;z-index:10;text-align:center">
+      <div style="font-size:4rem;margin-bottom:16px;filter:drop-shadow(0 0 20px rgba(255,0,0,.6))">📖</div>
+      <h1 class="page-hero-title glitch" data-text="The Whispering Dark">The Whispering Dark</h1>
+      <p class="page-hero-sub">Seven chapters of escalating psychological horror.<br>
+        <span style="color:#bb3333">Read alone. In the dark. If you dare.</span></p>
+      <div style="margin-top:28px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <span style="font-family:var(--font-gothic);font-size:.65rem;letter-spacing:2px;color:#555;border:1px solid #222;padding:6px 14px;border-radius:2px">7 CHAPTERS</span>
+        <span style="font-family:var(--font-gothic);font-size:.65rem;letter-spacing:2px;color:#555;border:1px solid #222;padding:6px 14px;border-radius:2px">🔴 LIVE SCARES</span>
+        <span style="font-family:var(--font-gothic);font-size:.65rem;letter-spacing:2px;color:var(--blood);border:1px solid var(--border);padding:6px 14px;border-radius:2px">⚠ DISTURBING</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- STORY PROGRESS -->
+  <div style="background:#0a0000;border-bottom:1px solid var(--border);padding:20px 40px">
+    <div style="max-width:820px;margin:0 auto">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <span style="font-family:var(--font-gothic);font-size:.65rem;letter-spacing:2px;color:var(--blood);text-transform:uppercase">Story Progress</span>
+        <span id="progress-pct" style="font-family:var(--font-gothic);font-size:.65rem;color:#555">0% Complete</span>
+      </div>
+      <div style="height:3px;background:#1a0000;border-radius:2px;overflow:hidden">
+        <div id="progress-bar" style="height:100%;background:linear-gradient(90deg,var(--blood),var(--crimson));width:0%;transition:width 1s ease;box-shadow:0 0 8px var(--blood)"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STORY CHAPTERS -->
+  <main class="story-section">
+
+    <!-- Chapter 1 -->
+    <article class="story-chapter" data-chapter="1">
+      <p class="chapter-num">Chapter I</p>
+      <h2 class="chapter-title">The House at the End of the Lane</h2>
+      <div class="chapter-text">
+        <p>Nobody on Gallows Road spoke of the house. It had stood empty for thirty-one years — ever since the Hargrove family vanished on a Wednesday night in October, leaving three plates of cold dinner on the table and every light blazing.</p>
+        <p>You moved in on a Tuesday. The estate agent smiled too wide and handed you the keys without making eye contact. You told yourself it was the price. A four-bedroom Victorian for less than a studio flat in the city. Of course there was nothing wrong.</p>
+        <p class="highlight">There was always something wrong.</p>
+        <p>The first night, you heard a sound from inside the walls. Not pipes. Not mice. Something with <em>rhythm</em>. Something that paused when you pressed your ear to the plaster. Something that, if you listened long enough, sounded unmistakably like breathing.</p>
+      </div>
+      <div class="chapter-continue">Continue reading</div>
+    </article>
+
+    <!-- Chapter 2 -->
+    <article class="story-chapter" data-chapter="2">
+      <p class="chapter-num">Chapter II</p>
+      <h2 class="chapter-title">What the Mirror Shows</h2>
+      <div class="chapter-text">
+        <p>On the third day, you found the mirror in the cellar. Six feet tall, framed in black wood carved with symbols you didn't recognise. The glass was perfectly clear — not a single crack, not a trace of dust — as though someone polished it that morning.</p>
+        <p>You carried it upstairs to the landing. It caught the light beautifully. You stood before it and straightened your shirt.</p>
+        <p>Your reflection straightened its shirt <em>three seconds later.</em></p>
+        <p class="highlight">You stepped back. It did not.</p>
+        <p>You ran downstairs and called your sister. By the time you returned with your phone torch, the reflection was back in sync. You laughed it off. You went to bed. You lay in the dark and stared at the ceiling and told yourself, quietly and firmly, that you had imagined it.</p>
+        <p>At 3:14 AM something knocked on your bedroom door. You had locked it from the inside. The knock came from inside the room.</p>
+      </div>
+      <div class="chapter-continue">Continue reading</div>
+    </article>
+
+    <!-- Scare trigger between chapters -->
+    <div class="reveal" style="text-align:center;padding:30px 0" id="mid-scare-1">
+      <div style="border:1px solid #1a0000;padding:20px;border-radius:4px;background:rgba(10,0,0,.5);max-width:400px;margin:0 auto">
+        <p style="font-family:var(--font-gothic);font-size:.65rem;letter-spacing:3px;color:var(--blood);text-transform:uppercase;margin-bottom:12px">⚠ Disturbance Detected</p>
+        <p style="font-size:.88rem;color:#777;margin-bottom:16px">A presence has been detected near your location. Brace yourself before continuing.</p>
+        <button class="btn-horror" style="font-size:.75rem;padding:12px 28px" onclick="HorrorFX.shake(8,400);HorrorAudio.playTone(50,1,'sawtooth',.07)">
+          I'm Ready. Continue.
+        </button>
+      </div>
+    </div>
+
+    <!-- Chapter 3 -->
+    <article class="story-chapter" data-chapter="3">
+      <p class="chapter-num">Chapter III</p>
+      <h2 class="chapter-title">The Children in the Garden</h2>
+      <div class="chapter-text">
+        <p>You first saw them on the fifth morning. Two children standing in the overgrown garden, just beyond the rusted iron fence. A boy and a girl, perhaps eight years old, dressed in clothes that seemed wrong for the season — woollen coats in the August heat.</p>
+        <p>They were facing the house. Facing your window. They did not move.</p>
+        <p>You watched them for twenty minutes. They didn't speak. They didn't fidget. They simply stood there, still as photographs, their faces obscured by shadow despite the bright morning sun.</p>
+        <p class="highlight">When your phone rang and you looked away for a single second, they were gone.</p>
+        <p>You searched the garden. The soil near the fence was freshly disturbed — two shallow impressions, the size of small feet, pressed deep into the mud as though something had stood there for a very long time. Or as though something had <em>risen</em> from below.</p>
+        <p>That night you looked up the Hargrove family. The estate agent's listing had mentioned them. The search results loaded slowly. Then you saw the photograph from the local newspaper, dated October 1993.</p>
+        <p>The Hargrove children stared back at you from the screen. The same children you had seen in the garden.</p>
+      </div>
+      <div class="chapter-continue">Continue reading</div>
+    </article>
+
+    <!-- Chapter 4 -->
+    <article class="story-chapter" data-chapter="4">
+      <p class="chapter-num">Chapter IV</p>
+      <h2 class="chapter-title">The Writing on the Wall</h2>
+      <div class="chapter-text">
+        <p>You found the first message behind the bathroom tiles. When a loose one fell free, you saw it scratched into the plaster beneath, over and over in the same handwriting, filling every inch of the hidden surface:</p>
+        <p class="highlight" style="text-align:center;font-size:1.1rem;letter-spacing:4px;display:block;padding:16px 0">DON'T OPEN THE BASEMENT DOOR</p>
+        <p>You told yourself it was old graffiti. A joke. Someone's idea of leaving a surprise for the next occupant. You replaced the tile and went downstairs and made coffee and did not think about the basement door.</p>
+        <p>You thought about the basement door constantly.</p>
+        <p>At eleven o'clock that night, the door opened by itself. Not dramatically — no thunder, no creak. It simply swung inward, slowly and quietly, as though pulled from the other side by something that wanted you to look without feeling afraid.</p>
+        <p>Cold air rolled up from the darkness below. It smelled of earth and copper and something you couldn't name but somehow recognised.</p>
+        <p class="highlight">It smelled like the inside of a grave.</p>
+      </div>
+      <div class="chapter-continue">Continue reading</div>
+    </article>
+
+    <!-- Mid-story scare trigger -->
+    <div class="reveal" style="text-align:center;padding:20px 0">
+      <button class="btn-horror" onclick="HorrorScare.run('👹','IT FOUND YOU!')" style="padding:14px 36px">
+        ⚠️ Open the Basement Door
+      </button>
+      <p style="margin-top:12px;font-size:.8rem;color:#444;font-style:italic">Warning: this action cannot be undone.</p>
+    </div>
+
+    <!-- Chapter 5 -->
+    <article class="story-chapter" data-chapter="5">
+      <p class="chapter-num">Chapter V</p>
+      <h2 class="chapter-title">What Lives Below</h2>
+      <div class="chapter-text">
+        <p>You went down. Of course you went down. You told yourself it was to prove there was nothing there.</p>
+        <p>The basement was empty — bare concrete walls, a single pull-cord lightbulb, a rusted boiler in the corner. Nothing sinister. You breathed out. You turned to go back upstairs.</p>
+        <p>The door at the top of the stairs was closed. You had left it open.</p>
+        <p>And in the corner of the basement, where the shadow of the boiler fell thickest, something was standing. You could not see it clearly. You were not sure you wanted to. It had a shape that was almost human — almost — but the proportions were wrong in ways your brain refused to process directly.</p>
+        <p class="highlight">It tilted its head. And then, in a voice that sounded like your own, it said: <em>"You shouldn't have come down here."</em></p>
+        <p>You don't remember getting back upstairs. You came to on the kitchen floor with no memory of the hours between. Your phone showed seventeen missed calls from your sister. The last text read: <em>I'm outside your house. I've been knocking for an hour. Why is every window dark? Why can I hear you crying inside?</em></p>
+        <p>You had been alone in the kitchen the entire time.</p>
+      </div>
+      <div class="chapter-continue">Continue reading</div>
+    </article>
+
+    <!-- Chapter 6 -->
+    <article class="story-chapter" data-chapter="6">
+      <p class="chapter-num">Chapter VI</p>
+      <h2 class="chapter-title">The Last Night</h2>
+      <div class="chapter-text">
+        <p>By the seventh day, you had stopped sleeping. You sat in the hallway with every light on and watched the mirrors and the doors and the shadows in the corners. You made lists. You tried to find rational explanations.</p>
+        <p>On the eighth night, the house went dark. Not a power cut — the streetlights outside still burned. Every bulb in every socket simply went out simultaneously, at exactly 3:14 AM.</p>
+        <p>In the darkness, you heard the basement door open again. Then footsteps on the stairs — slow, deliberate, patient. Then silence outside your bedroom door.</p>
+        <p class="highlight">Then a knock. Three times. The same knock from that first night.</p>
+        <p>You did not open the door. You sat with your back against the bed and your knees pressed to your chest and you waited for dawn with every muscle locked rigid.</p>
+        <p>Dawn came. The footsteps were gone. The house was quiet. You packed a bag and walked out the front door and you did not look back.</p>
+        <p>You drove for four hours. You checked into a hotel. You sat on the bed and exhaled for what felt like the first time in a week.</p>
+        <p>Your phone lit up. A text from an unknown number.</p>
+        <p class="highlight" style="text-align:center;font-size:1.05rem;letter-spacing:2px;padding:12px 0;display:block">
+          "You forgot to say goodbye. We'll see you soon."
+        </p>
+      </div>
+      <div class="chapter-continue">Continue reading</div>
+    </article>
+
+    <!-- Chapter 7 — FINAL with full jumpscare -->
+    <article class="story-chapter" data-chapter="7" id="final-chapter">
+      <p class="chapter-num">Chapter VII — Final</p>
+      <h2 class="chapter-title">It Followed You Home</h2>
+      <div class="chapter-text">
+        <p>Three weeks later, back in your city apartment, you had almost convinced yourself it was over. A bad experience. An old house with settling timbers and overactive imagination. You slept again. You laughed again. You had people over for dinner and didn't mention Gallows Road once.</p>
+        <p>On a Tuesday night — exactly one month after you moved in — you woke at 3:14 AM.</p>
+        <p>Your bedroom was cold. Not the cold of an open window. The cold of something that had been standing still in the room for a very long time.</p>
+        <p>You reached for the lamp. Your hand found it. You clicked it on.</p>
+        <p>In the mirror on the far wall, your reflection was already sitting up — watching you — before you moved.</p>
+        <p class="highlight">And in the corner of the room, where the shadow fell thickest, something was standing.</p>
+        <p>It tilted its head.</p>
+        <p style="text-align:center;font-size:.9rem;letter-spacing:8px;color:#555;padding:20px 0">. . .</p>
+        <p style="text-align:center;font-size:1rem;font-style:italic;color:#bb3333">Are you still reading?</p>
+        <p style="text-align:center;font-size:.88rem;color:#555;margin-top:8px">Look behind you. Right now.</p>
+      </div>
+      <div style="text-align:center;margin-top:36px">
+        <button class="btn-horror" onclick="HorrorScare.run('👹','IT FOLLOWED YOU!')" style="padding:18px 48px;font-size:1rem">
+          ☠ Read The Final Line
+        </button>
+      </div>
+    </article>
+
+    <!-- Epilogue -->
+    <div id="epilogue" style="display:none;text-align:center;padding:40px;border:1px solid var(--border);border-radius:4px;background:rgba(10,0,0,.5);margin-top:40px">
+      <div style="font-size:4rem;margin-bottom:16px">☠️</div>
+      <h3 style="font-family:var(--font-gothic);font-size:1.5rem;color:var(--ghost);margin-bottom:16px;text-shadow:var(--glow-red)">You Survived The Story</h3>
+      <p style="color:#777;max-width:460px;margin:0 auto 28px;line-height:1.8;font-size:.9rem">
+        Congratulations — you made it to the end of <em>The Whispering Dark</em>.<br>
+        Now send this page to someone else and watch them fail.
+      </p>
+      <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+        <button class="btn-horror" onclick="copyPrankLink()">📋 Share The Horror</button>
+        <a href="asylum.html" class="btn-horror btn-ghost">🏚 Try The Asylum</a>
+      </div>
+      <p id="copy-feedback" style="margin-top:14px;color:#55ff55;font-size:.9rem;opacity:0;transition:opacity .5s;min-height:20px"></p>
+    </div>
+
+  </main>
+
+  <footer>
+    <span class="footer-logo">☠ DarkVault</span>
+    <ul class="footer-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="asylum.html">Asylum</a></li>
+      <li><a href="forest.html">Forest</a></li>
+      <li><a href="ritual.html">Ritual</a></li>
+      <li><a href="gallery.html">Gallery</a></li>
+      <li><a href="jumpscare.html">Scream Room</a></li>
+    </ul>
+    <div class="footer-divider"></div>
+    <p class="footer-copy">© 2026 DarkVault · The story continues in your nightmares 😈</p>
+  </footer>
+
+  <!-- Overlays -->
+  <div id="countdown-overlay">
+    <div id="countdown-num">3</div>
+    <div id="countdown-label">BRACE YOURSELF…</div>
+  </div>
+  <div id="jumpscare-screen">
+    <div id="scare-emoji">😱</div>
+    <div id="scare-text">BOO!</div>
+  </div>
+  <div id="aftermath-screen">
+    <div class="aftermath-skull">💀</div>
+    <h2 class="aftermath-title">GOTCHA! 😂</h2>
+    <p class="aftermath-msg">You just got pranked! Did you scream reading that final line?<br>
+      <em style="color:#ff6666">Share this story with your friends!</em></p>
+    <div class="aftermath-actions">
+      <button class="btn-horror" onclick="copyPrankLink()">📋 Share The Prank</button>
+      <button class="btn-horror btn-ghost" onclick="document.getElementById('aftermath-screen').classList.remove('show');document.getElementById('epilogue').style.display='block'">📖 See Epilogue</button>
+    </div>
+    <p id="copy-feedback" style="margin-top:16px;color:#55ff55;font-size:.9rem;opacity:0;transition:opacity .5s;min-height:22px"></p>
+  </div>
+
+  <script src="horror.js"></script>
+  <script>
+    // Progress bar as user scrolls through chapters
+    const chapters = document.querySelectorAll('.story-chapter');
+    const bar = document.getElementById('progress-bar');
+    const pct = document.getElementById('progress-pct');
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          const ch = parseInt(e.target.dataset.chapter);
+          const p  = Math.round((ch / 7) * 100);
+          bar.style.width = p + '%';
+          pct.textContent = p + '% Complete';
+          if (ch >= 3) HorrorAudio.playTone(40, 0.5, 'sine', 0.03);
+        }
+      });
+    }, { threshold: 0.5 });
+    chapters.forEach(c => io.observe(c));
+  </script>
+</body>
+</html>

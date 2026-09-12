@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Scream Room — DarkVault</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=Special+Elite&family=Cinzel+Decorative:wght@400;700;900&family=UnifrakturMaguntia&display=swap" rel="stylesheet"/>
+  <style>
+    .scream-hero {
+      min-height: 60vh;
+      background: radial-gradient(ellipse at 50% 80%, #2a0000, #000);
+      display: flex; align-items: center; justify-content: center;
+      text-align: center; padding: 120px 20px 60px; position: relative; overflow: hidden;
+    }
+    .scream-hero::before {
+      content: ''; position: absolute; inset: 0;
+      background: repeating-linear-gradient(
+        90deg, transparent, transparent 80px,
+        rgba(139,0,0,0.03) 80px, rgba(139,0,0,0.03) 81px
+      );
+    }
+
+    /* Scare selector grid */
+    .scare-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px; max-width: 1100px; margin: 0 auto; padding: 40px 20px;
+    }
+    .scare-card {
+      border: 1px solid var(--border); background: var(--panel);
+      border-radius: 4px; padding: 32px 20px; text-align: center;
+      transition: var(--transition); position: relative; overflow: hidden;
+    }
+    .scare-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(139,0,0,0.08), transparent);
+      opacity: 0; transition: var(--transition);
+    }
+    .scare-card:hover { border-color: var(--blood); transform: translateY(-6px);
+      box-shadow: 0 20px 50px rgba(0,0,0,.7), 0 0 25px rgba(255,0,0,.2); }
+    .scare-card:hover::before { opacity: 1; }
+    .scare-card .sc-icon { font-size: 3.5rem; display: block; margin-bottom: 14px;
+      transition: var(--transition); filter: grayscale(0.4); }
+    .scare-card:hover .sc-icon { transform: scale(1.2); filter: grayscale(0) drop-shadow(0 0 12px rgba(255,0,0,.6)); }
+    .scare-card .sc-name { font-family: var(--font-gothic); font-size: .75rem; letter-spacing: 2px;
+      color: var(--ghost); text-transform: uppercase; margin-bottom: 8px; }
+    .scare-card .sc-desc { font-size: .78rem; color: #555; line-height: 1.6; margin-bottom: 16px; }
+    .sc-rating { display: flex; justify-content: center; gap: 3px; margin-bottom: 16px; }
+    .sc-rating span { font-size: .85rem; }
+    .sc-btn { font-family: var(--font-gothic); font-size: .65rem; letter-spacing: 2px; text-transform: uppercase;
+      padding: 10px 24px; border: 1px solid var(--blood); background: rgba(139,0,0,.15);
+      color: var(--ghost); border-radius: 2px; transition: var(--transition); }
+    .sc-btn:hover { background: var(--blood); box-shadow: 0 0 20px rgba(255,0,0,.4); }
+
+    /* Share section */
+    .share-box {
+      max-width: 700px; margin: 0 auto; padding: 40px 20px;
+    }
+    .share-card {
+      border: 1px solid var(--border); background: var(--panel);
+      border-radius: 4px; padding: 36px 40px; text-align: center;
+      box-shadow: 0 0 40px rgba(255,0,0,.1);
+    }
+    .share-card h2 { font-family: var(--font-gothic); font-size: 1.3rem; color: var(--ghost);
+      margin-bottom: 12px; text-shadow: var(--glow-red); letter-spacing: 3px; }
+    .share-card p { font-size: .9rem; color: #777; line-height: 1.8; margin-bottom: 24px; max-width: 460px; margin-left: auto; margin-right: auto; }
+
+    /* Prank builder */
+    .builder {
+      max-width: 700px; margin: 0 auto; padding: 0 20px 60px;
+    }
+    .builder-card {
+      border: 1px solid #1a0000; background: rgba(10,0,0,.7);
+      padding: 32px 36px; border-radius: 4px;
+    }
+    .builder-card h3 { font-family: var(--font-gothic); font-size: .9rem; letter-spacing: 3px;
+      color: var(--blood); text-transform: uppercase; margin-bottom: 20px; }
+    .builder-row { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+    .builder-label { font-family: var(--font-gothic); font-size: .65rem; letter-spacing: 2px;
+      color: #444; text-transform: uppercase; min-width: 100px; }
+    .builder-select {
+      font-family: var(--font-story); font-size: .85rem; color: var(--ghost);
+      background: #0d0d0d; border: 1px solid #1a0000; padding: 8px 14px;
+      border-radius: 2px; flex: 1; min-width: 160px; transition: var(--transition);
+    }
+    .builder-select:focus { outline: none; border-color: var(--blood); box-shadow: 0 0 8px rgba(255,0,0,.2); }
+    #scare-preview {
+      font-size: 4rem; text-align: center; padding: 20px 0;
+      border: 1px dashed #1a0000; border-radius: 4px; margin: 20px 0;
+      transition: var(--transition); background: rgba(0,0,0,.5);
+    }
+    #preview-text {
+      font-family: var(--font-horror); font-size: 1.5rem; color: var(--neon-red);
+      text-shadow: var(--glow-red); text-align: center; margin-bottom: 16px;
+    }
+
+    /* Victim counter live */
+    .live-ticker {
+      background: rgba(10,0,0,.8); border: 1px solid var(--border);
+      padding: 16px 28px; border-radius: 4px; max-width: 500px; margin: 0 auto 40px;
+      display: flex; align-items: center; gap: 16px; justify-content: center;
+    }
+    .live-dot { width: 8px; height: 8px; background: var(--neon-red); border-radius: 50%;
+      animation: livePulse 1s ease-in-out infinite; box-shadow: 0 0 8px var(--neon-red); }
+    @keyframes livePulse { 0%,100%{transform:scale(1)}50%{transform:scale(1.4)} }
+    .live-text { font-family: var(--font-gothic); font-size: .65rem; letter-spacing: 2px; color: #555; text-transform: uppercase; }
+    .live-num { font-family: var(--font-horror); color: var(--crimson); font-size: 1.1rem; }
+
+    @media(max-width:600px) { .share-card { padding: 24px 20px; } .builder-card { padding: 24px 20px; } }
+  </style>
+</head>
+<body>
+  <div id="flicker"></div>
+  <div class="vignette"></div>
+  <div id="particles"></div>
+  <div id="cursor"></div>
+  <div id="cursor-dot"></div>
+  <div class="blood-drip">
+    <span style="height:62px;animation-duration:4.2s"></span>
+    <span style="height:88px;animation-duration:5.2s;animation-delay:.7s"></span>
+    <span style="height:50px;animation-duration:3.7s;animation-delay:1.4s"></span>
+    <span style="height:108px;animation-duration:6s;animation-delay:.3s"></span>
+    <span style="height:72px;animation-duration:4.5s;animation-delay:2s"></span>
+    <span style="height:92px;animation-duration:5.4s;animation-delay:.9s"></span>
+    <span style="height:56px;animation-duration:3.9s;animation-delay:2.3s"></span>
+    <span style="height:80px;animation-duration:4.9s;animation-delay:.5s"></span>
+    <span style="height:44px;animation-duration:3.4s;animation-delay:1.8s"></span>
+    <span style="height:96px;animation-duration:5.7s;animation-delay:.1s"></span>
+  </div>
+
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">☠ DarkVault</a>
+    <button class="nav-hamburger" id="nav-burger"><span></span><span></span><span></span></button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="chapters.html">📖 Story</a></li>
+      <li><a href="asylum.html">🏚 Asylum</a></li>
+      <li><a href="forest.html">🌲 Forest</a></li>
+      <li><a href="ritual.html">🕯 Ritual</a></li>
+      <li><a href="gallery.html">🖼 Gallery</a></li>
+      <li><a href="jumpscare.html">💀 Scream</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="scream-hero">
+    <div style="position:relative;z-index:10">
+      <div style="font-size:5rem;margin-bottom:16px;filter:drop-shadow(0 0 30px rgba(255,0,0,.8));animation:skullFloat 2s ease-in-out infinite">💀</div>
+      <h1 class="page-hero-title glitch" data-text="The Scream Room">The Scream Room</h1>
+      <p class="page-hero-sub">
+        Six custom-engineered jump scares.<br>
+        <span style="color:#bb3333">Each one designed to make you scream out loud.</span><br>
+        <span style="color:#444;font-size:.85rem">🔊 Turn up the volume. Headphones recommended.</span>
+      </p>
+      <div style="margin-top:28px">
+        <div class="live-ticker">
+          <div class="live-dot"></div>
+          <span class="live-text">Screaming right now:</span>
+          <span class="live-num" id="live-scream-count">247</span>
+          <span class="live-text">victims</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCARE SELECTOR -->
+  <section style="background:linear-gradient(to bottom,#000,#050505)">
+    <div class="section-header reveal" style="padding:60px 20px 0">
+      <h2 class="section-title">Choose Your Weapon</h2>
+      <div class="section-divider">💀</div>
+      <p style="color:#555;max-width:460px;margin:16px auto 0;font-size:.85rem;text-align:center;line-height:1.8">
+        Six unique scares. Each with its own countdown, audio, and aftermath. All equally devastating.
+      </p>
+    </div>
+    <div class="scare-grid">
+
+      <div class="scare-card reveal">
+        <span class="sc-icon">😱</span>
+        <p class="sc-name">The Classic</p>
+        <p class="sc-desc">The original. The one that started it all. A perfectly timed 3-second countdown followed by maximum face.</p>
+        <div class="sc-rating"><span>💀</span><span>💀</span><span>💀</span><span style="opacity:.3">💀</span><span style="opacity:.3">💀</span></div>
+        <button class="sc-btn" onclick="HorrorScare.run('😱', 'CLASSIC SCREAM!')">▶ Trigger Scare</button>
+      </div>
+
+      <div class="scare-card reveal">
+        <span class="sc-icon">👹</span>
+        <p class="sc-name">The Demon</p>
+        <p class="sc-desc">An ancient evil with a message specifically for you. Longer countdown. Louder audio. More screaming.</p>
+        <div class="sc-rating"><span>💀</span><span>💀</span><span>💀</span><span>💀</span><span style="opacity:.3">💀</span></div>
+        <button class="sc-btn" onclick="HorrorScare.run('👹', 'IT FOUND YOU!')">▶ Trigger Scare</button>
+      </div>
+
+      <div class="scare-card reveal">
+        <span class="sc-icon">🤡</span>
+        <p class="sc-name">The Clown</p>
+        <p class="sc-desc">You thought clowns were funny. This one has been following you since you opened this page.</p>
+        <div class="sc-rating"><span>💀</span><span>💀</span><span>💀</span><span>💀</span><span style="opacity:.3">💀</span></div>
+        <button class="sc-btn" onclick="HorrorScare.run('🤡', 'HONK HONK! 🤡')">▶ Trigger Scare</button>
+      </div>
+
+      <div class="scare-card reveal">
+        <span class="sc-icon">💀</span>
+        <p class="sc-name">The Reaper</p>
+        <p class="sc-desc">No countdown. No warning. Just instant darkness and the realisation that you are completely alone.</p>
+        <div class="sc-rating"><span>💀</span><span>💀</span><span>💀</span><span>💀</span><span>💀</span></div>
+        <button class="sc-btn" onclick="HorrorScare.runInstant('💀', 'YOUR TIME IS UP')">▶ Trigger Scare</button>
+      </div>
+
+      <div class="scare-card reveal">
+        <span class="sc-icon">👺</span>
+        <p class="sc-name">The Ancient One</p>
+        <p class="sc-desc">Something older than fear. Older than language. It has been waiting a very long time for you to click this button.</p>
+        <div class="sc-rating"><span>💀</span><span>💀</span><span>💀</span><span>💀</span><span>💀</span></div>
+        <button class="sc-btn" onclick="HorrorScare.run('👺', 'IT REMEMBERED YOU')">▶ Trigger Scare</button>
+      </div>
+
+      <div class="scare-card reveal">
+        <span class="sc-icon">😈</span>
+        <p class="sc-name">The Devil</p>
+        <p class="sc-desc">Five candles lit. Pentagram drawn. This one doesn't just scare you — it claims you. The worst one. Obviously click it.</p>
+        <div class="sc-rating"><span>💀</span><span>💀</span><span>💀</span><span>💀</span><span>💀</span></div>
+        <button class="sc-btn" onclick="HorrorScare.run('😈', 'SOUL CLAIMED ☠')">▶ Trigger Scare</button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SHARE SECTION -->
+  <section style="padding:60px 0;background:linear-gradient(to bottom,#050505,#0a0000,#050505)">
+    <div class="share-box">
+      <div class="share-card reveal">
+        <h2>🕷 The Ultimate Prank</h2>
+        <p>Send this page to your most easily scared friend. Tell them it's a quiz, a game, a survey — anything. Then watch what happens when they hit a scare button.</p>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center">
+          <button class="btn-horror" onclick="copyPrankLink()">📋 Copy Link to Send</button>
+          <button class="btn-horror btn-ghost" onclick="shareWhatsApp()">📱 Share on WhatsApp</button>
+        </div>
+        <p id="copy-feedback" style="margin-top:14px;color:#55ff55;font-size:.9rem;opacity:0;transition:opacity .5s;min-height:20px"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CUSTOM SCARE BUILDER -->
+  <section style="padding:0 0 80px;background:#050505">
+    <div class="section-header reveal" style="padding:0 20px 40px">
+      <h2 class="section-title">Build Your Own Scare</h2>
+      <div class="section-divider">🎃</div>
+    </div>
+    <div class="builder">
+      <div class="builder-card reveal">
+        <h3>🔧 Custom Scare Builder</h3>
+        <div class="builder-row">
+          <span class="builder-label">Face</span>
+          <select class="builder-select" id="b-face" onchange="updatePreview()">
+            <option value="😱">😱 Classic Screamer</option>
+            <option value="👹">👹 Demon</option>
+            <option value="🤡">🤡 Clown</option>
+            <option value="💀">💀 Skull</option>
+            <option value="👺">👺 Oni</option>
+            <option value="😈">😈 Devil</option>
+            <option value="👽">👽 Alien</option>
+            <option value="🕷️">🕷️ Spider</option>
+            <option value="🦇">🦇 Bat</option>
+            <option value="☠️">☠️ Crossbones</option>
+          </select>
+        </div>
+        <div class="builder-row">
+          <span class="builder-label">Message</span>
+          <select class="builder-select" id="b-text" onchange="updatePreview()">
+            <option value="BOO!">BOO!</option>
+            <option value="GOTCHA! 😂">GOTCHA! 😂</option>
+            <option value="IT FOUND YOU!">IT FOUND YOU!</option>
+            <option value="RUN. NOW.">RUN. NOW.</option>
+            <option value="SCREAM FOR ME!">SCREAM FOR ME!</option>
+            <option value="BEHIND YOU!">BEHIND YOU!</option>
+            <option value="YOU'RE NEXT.">YOU'RE NEXT.</option>
+            <option value="SOUL CLAIMED ☠">SOUL CLAIMED ☠</option>
+            <option value="IT REMEMBERED YOU">IT REMEMBERED YOU</option>
+            <option value="WELCOME TO HELL!">WELCOME TO HELL!</option>
+          </select>
+        </div>
+        <div class="builder-row">
+          <span class="builder-label">Type</span>
+          <select class="builder-select" id="b-type">
+            <option value="countdown">With Countdown (3-2-1)</option>
+            <option value="instant">Instant Scare (No Warning)</option>
+          </select>
+        </div>
+        <div id="scare-preview">😱</div>
+        <p id="preview-text">BOO!</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <button class="btn-horror" onclick="launchCustom()" style="flex:1;padding:14px">
+            💥 Launch Custom Scare
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW TO PRANK -->
+  <section style="padding:60px 0;background:linear-gradient(to bottom,#050505,#000)">
+    <div class="section-header reveal" style="padding:0 20px 40px">
+      <h2 class="section-title">How To Prank Perfectly</h2>
+      <div class="section-divider">😈</div>
+    </div>
+    <div style="max-width:700px;margin:0 auto;padding:0 20px;display:grid;gap:20px">
+      <div style="display:flex;gap:20px;align-items:flex-start" class="reveal">
+        <div style="width:42px;height:42px;border:1px solid var(--blood);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-gothic);font-size:.7rem;color:var(--blood);flex-shrink:0">01</div>
+        <div>
+          <p style="font-family:var(--font-gothic);font-size:.8rem;letter-spacing:2px;color:var(--ghost);margin-bottom:6px;text-transform:uppercase">Set the Scene</p>
+          <p style="font-size:.85rem;color:#666;line-height:1.8">Tell your friend it's a personality quiz, a colour test, or just "something cool." The less they know, the better the reaction.</p>
+        </div>
+      </div>
+      <div style="display:flex;gap:20px;align-items:flex-start" class="reveal">
+        <div style="width:42px;height:42px;border:1px solid var(--blood);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-gothic);font-size:.7rem;color:var(--blood);flex-shrink:0">02</div>
+        <div>
+          <p style="font-family:var(--font-gothic);font-size:.8rem;letter-spacing:2px;color:var(--ghost);margin-bottom:6px;text-transform:uppercase">Make Them Use Headphones</p>
+          <p style="font-size:.85rem;color:#666;line-height:1.8">This is crucial. The audio is 60% of the scare. Say "the sound quality is better with headphones." Do not elaborate.</p>
+        </div>
+      </div>
+      <div style="display:flex;gap:20px;align-items:flex-start" class="reveal">
+        <div style="width:42px;height:42px;border:1px solid var(--blood);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-gothic);font-size:.7rem;color:var(--blood);flex-shrink:0">03</div>
+        <div>
+          <p style="font-family:var(--font-gothic);font-size:.8rem;letter-spacing:2px;color:var(--ghost);margin-bottom:6px;text-transform:uppercase">Make Them Turn Up The Volume</p>
+          <p style="font-size:.85rem;color:#666;line-height:1.8">The ambient creepy sounds at the start will seem quiet. Say "you need to turn it up to really get the effect." They will comply. This is a mistake.</p>
+        </div>
+      </div>
+      <div style="display:flex;gap:20px;align-items:flex-start" class="reveal">
+        <div style="width:42px;height:42px;border:1px solid var(--blood);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-gothic);font-size:.7rem;color:var(--blood);flex-shrink:0">04</div>
+        <div>
+          <p style="font-family:var(--font-gothic);font-size:.8rem;letter-spacing:2px;color:var(--ghost);margin-bottom:6px;text-transform:uppercase">Record The Reaction</p>
+          <p style="font-size:.85rem;color:#666;line-height:1.8">Secretly record their face while they explore the site. The jump scare moment is priceless. Evidence is everything.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span class="footer-logo">☠ DarkVault</span>
+    <ul class="footer-links">
+      <li><a href="index.html">Home</a></li><li><a href="chapters.html">Story</a></li>
+      <li><a href="asylum.html">Asylum</a></li><li><a href="forest.html">Forest</a></li>
+      <li><a href="ritual.html">Ritual</a></li><li><a href="gallery.html">Gallery</a></li>
+    </ul>
+    <div class="footer-divider"></div>
+    <p class="footer-copy">© 2026 DarkVault · Make someone scream today 😈</p>
+  </footer>
+
+  <div id="countdown-overlay"><div id="countdown-num">3</div><div id="countdown-label">BRACE YOURSELF…</div></div>
+  <div id="jumpscare-screen"><div id="scare-emoji">😱</div><div id="scare-text">BOO!</div></div>
+  <div id="aftermath-screen">
+    <div class="aftermath-skull">💀</div>
+    <h2 class="aftermath-title">GOTCHA! 😂</h2>
+    <p class="aftermath-msg">You just got destroyed! Now go destroy someone else.<br><em style="color:#ff6666">The Scream Room claims another victim.</em></p>
+    <div class="aftermath-actions">
+      <button class="btn-horror" onclick="copyPrankLink()">📋 Share The Scream Room</button>
+      <button class="btn-horror btn-ghost" onclick="closeAftermath()">🔄 Try Another</button>
+    </div>
+    <p id="copy-feedback" style="margin-top:16px;color:#55ff55;font-size:.9rem;opacity:0;transition:opacity .5s;min-height:22px"></p>
+  </div>
+
+  <script src="horror.js"></script>
+  <script>
+    // Live scream counter
+    let screamCount = 247;
+    const screamEl = document.getElementById('live-scream-count');
+    setInterval(() => {
+      screamCount += Math.floor(Math.random() * 3);
+      screamEl.textContent = screamCount.toLocaleString();
+    }, 2000);
+
+    // Preview updater
+    function updatePreview() {
+      document.getElementById('scare-preview').textContent = document.getElementById('b-face').value;
+      document.getElementById('preview-text').textContent  = document.getElementById('b-text').value;
+    }
+
+    function launchCustom() {
+      const face = document.getElementById('b-face').value;
+      const text = document.getElementById('b-text').value;
+      const type = document.getElementById('b-type').value;
+      if (type === 'instant') HorrorScare.runInstant(face, text);
+      else HorrorScare.run(face, text);
+    }
+
+    function shareWhatsApp() {
+      const url = encodeURIComponent(window.location.origin + '/index.html');
+      const msg = encodeURIComponent('You HAVE to try this... trust me 😏 ' + decodeURIComponent(url));
+      window.open('https://wa.me/?text=' + msg, '_blank');
+    }
+  </script>
+</body>
+</html>

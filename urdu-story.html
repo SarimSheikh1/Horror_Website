@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Andheri Kahani — DarkVault</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=Special+Elite&family=Cinzel+Decorative:wght@400;700;900&family=UnifrakturMaguntia&display=swap" rel="stylesheet"/>
+  <style>
+    body { background:#030200; }
+    .us-bg {
+      position:fixed; inset:0;
+      background:radial-gradient(ellipse at 50% 40%, #0f0800 0%, #000 70%);
+      pointer-events:none; z-index:0;
+      animation:usBg 7s ease-in-out infinite alternate;
+    }
+    @keyframes usBg {
+      0%  { background:radial-gradient(ellipse at 50% 40%,#0f0800,#000); }
+      100%{ background:radial-gradient(ellipse at 50% 40%,#1a0c00,#020100); }
+    }
+
+    /* Language toggle */
+    .lang-toggle {
+      display:flex; gap:0; max-width:300px; margin:0 auto 40px;
+      position:relative; z-index:10;
+    }
+    .lang-btn {
+      flex:1; padding:10px; font-family:var(--font-gothic); font-size:.65rem;
+      letter-spacing:2px; text-transform:uppercase; text-align:center;
+      border:1px solid rgba(80,50,0,.4); background:rgba(10,7,0,.6);
+      color:#4a3a10; transition:var(--transition); cursor:pointer;
+    }
+    .lang-btn.active {
+      background:rgba(80,50,0,.3); color:#c8a040;
+      border-color:#8b6914; box-shadow:0 0 12px rgba(160,120,0,.2);
+    }
+    .lang-btn:first-child { border-radius:4px 0 0 4px; }
+    .lang-btn:last-child  { border-radius:0 4px 4px 0; }
+
+    /* Story card */
+    .us-chapter {
+      max-width:780px; margin:0 auto 52px; padding:0 20px;
+      opacity:0; transform:translateY(24px);
+      transition:opacity .8s ease, transform .8s ease;
+    }
+    .us-chapter.visible { opacity:1; transform:translateY(0); }
+
+    .us-card {
+      border-left:3px solid #8b6914;
+      background:linear-gradient(135deg,rgba(20,12,0,.7),rgba(5,3,0,.5));
+      padding:36px 36px 28px; border-radius:0 4px 4px 0;
+      box-shadow:-4px 0 20px rgba(139,100,0,.15), inset 0 0 20px rgba(0,0,0,.3);
+      position:relative;
+    }
+    .us-card::before {
+      content:''; position:absolute; inset:0;
+      background:repeating-linear-gradient(45deg,transparent,transparent 50px,rgba(80,50,0,.02) 50px,rgba(80,50,0,.02) 51px);
+      pointer-events:none; border-radius:0 4px 4px 0;
+    }
+
+    .us-num {
+      font-family:var(--font-gothic); font-size:.6rem; letter-spacing:3px;
+      color:#8b6914; text-transform:uppercase; margin-bottom:8px;
+    }
+    .us-title-en {
+      font-family:var(--font-gothic); font-size:clamp(1.1rem,3vw,1.8rem);
+      color:var(--ghost); margin-bottom:4px; text-shadow:0 0 12px rgba(200,150,0,.2);
+    }
+    .us-title-ur {
+      font-family:'Special Elite',cursive; font-size:clamp(.95rem,2.5vw,1.4rem);
+      color:#c8a040; margin-bottom:20px; font-style:italic;
+      text-shadow:0 0 8px rgba(180,120,0,.3);
+    }
+    .us-body { line-height:2; font-size:.93rem; }
+    .us-en { color:#bbb; }
+    .us-ur { color:#c8a040; font-style:italic; font-size:.9rem; display:none; }
+    .us-both .us-en, .us-both .us-ur { display:block; }
+    .us-both .us-ur { border-top:1px solid rgba(80,50,0,.2); margin-top:10px; padding-top:10px; }
+
+    .us-body p { margin-bottom:14px; }
+    .us-body .hl { color:var(--crimson); font-style:italic; }
+    .us-body .hl-ur { color:#ffaa44; font-style:italic; }
+
+    /* Death image block */
+    .death-img-block {
+      margin:28px 0; padding:20px;
+      border:1px solid rgba(139,0,0,.4);
+      background:rgba(10,0,0,.6); border-radius:4px;
+      text-align:center;
+      box-shadow:0 0 30px rgba(255,0,0,.08);
+    }
+    .death-img-emoji {
+      font-size:clamp(4rem,12vw,8rem);
+      display:block; margin-bottom:12px;
+      filter:drop-shadow(0 0 20px rgba(255,0,0,.5));
+      animation:deathPulse 2s ease-in-out infinite;
+    }
+    @keyframes deathPulse {
+      0%,100%{ filter:drop-shadow(0 0 12px rgba(255,0,0,.4)); transform:scale(1); }
+      50%    { filter:drop-shadow(0 0 30px rgba(255,0,0,.8)); transform:scale(1.06); }
+    }
+    .death-caption {
+      font-family:var(--font-gothic); font-size:.65rem; letter-spacing:2px;
+      color:var(--blood); text-transform:uppercase; margin-bottom:4px;
+    }
+    .death-caption-ur {
+      font-size:.78rem; color:#aa3333; font-style:italic; margin-top:4px;
+    }
+
+    /* Scare button mid-story */
+    .mid-scare {
+      margin:32px 0; text-align:center; padding:20px;
+      border:1px dashed rgba(139,0,0,.3); border-radius:4px;
+      background:rgba(8,0,0,.4);
+    }
+    .mid-scare p {
+      font-size:.85rem; color:#555; margin-bottom:14px; font-style:italic;
+    }
+
+    /* Chapter divider */
+    .chapter-divider {
+      display:flex; align-items:center; gap:16px;
+      color:#4a3a10; font-size:1.2rem;
+      max-width:780px; margin:0 auto 32px; padding:0 20px;
+    }
+    .chapter-divider::before,.chapter-divider::after {
+      content:''; flex:1; height:1px;
+      background:linear-gradient(90deg,transparent,#4a3a10,transparent);
+    }
+
+    @media(max-width:500px){ .us-card{ padding:24px 18px 20px; } }
+  </style>
+</head>
+<body>
+  <div class="us-bg"></div>
+  <div id="flicker"></div>
+  <div class="vignette"></div>
+  <div id="particles"></div>
+  <div id="cursor"></div>
+  <div id="cursor-dot"></div>
+  <div class="blood-drip">
+    <span style="height:58px;animation-duration:4.1s"></span>
+    <span style="height:85px;animation-duration:5.2s;animation-delay:.7s"></span>
+    <span style="height:46px;animation-duration:3.6s;animation-delay:1.4s"></span>
+    <span style="height:106px;animation-duration:6s;animation-delay:.3s"></span>
+    <span style="height:70px;animation-duration:4.5s;animation-delay:2s"></span>
+    <span style="height:90px;animation-duration:5.4s;animation-delay:.9s"></span>
+    <span style="height:54px;animation-duration:3.8s;animation-delay:2.3s"></span>
+    <span style="height:78px;animation-duration:4.7s;animation-delay:.5s"></span>
+  </div>
+
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">☠ DarkVault</a>
+    <button class="nav-hamburger" id="nav-burger"><span></span><span></span><span></span></button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="login.html">🔐 Login</a></li>
+      <li><a href="urdu-story.html">📜 Kahani</a></li>
+      <li><a href="killer.html">🔪 Killer</a></li>
+      <li><a href="chapters.html">📖 Story</a></li>
+      <li><a href="asylum.html">🏚 Asylum</a></li>
+      <li><a href="ritual.html">🕯 Ritual</a></li>
+      <li><a href="ouija.html">🔮 Ouija</a></li>
+      <li><a href="maze.html">🌀 Maze</a></li>
+      <li><a href="jumpscare.html">💀 Scream</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="page-hero" style="background:radial-gradient(ellipse at 50% 80%,#180800,#000);min-height:50vh">
+    <div style="position:relative;z-index:10;text-align:center">
+      <div style="font-size:4rem;margin-bottom:14px;filter:drop-shadow(0 0 20px rgba(200,140,0,.6))">📜</div>
+      <h1 class="page-hero-title glitch" data-text="Andheri Kahani">Andheri Kahani</h1>
+      <p class="page-hero-sub" style="color:#c8a040">
+        The Dark Story · اندھیری کہانی<br>
+        <span style="color:#bb3333">Roman Urdu aur English — dono zubanon mein darr.</span><br>
+        <span style="color:#555;font-size:.82rem">Raat ke andheron mein akele paro. Agar himmat ho.</span>
+      </p>
+      <div style="margin-top:28px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+        <span style="font-family:var(--font-gothic);font-size:.6rem;letter-spacing:2px;color:#555;border:1px solid #1a0a00;padding:6px 14px;border-radius:2px">7 FASL</span>
+        <span style="font-family:var(--font-gothic);font-size:.6rem;letter-spacing:2px;color:#555;border:1px solid #1a0a00;padding:6px 14px;border-radius:2px">ROMAN URDU + ENGLISH</span>
+        <span style="font-family:var(--font-gothic);font-size:.6rem;letter-spacing:2px;color:var(--blood);border:1px solid var(--border);padding:6px 14px;border-radius:2px">☠ MAUT KE MANZAR</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Language Toggle -->
+  <div style="position:relative;z-index:10;padding:40px 20px 0">
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btn-en" onclick="setLang('en')">🇬🇧 English</button>
+      <button class="lang-btn" id="btn-ur" onclick="setLang('ur')">🇵🇰 Roman Urdu</button>
+      <button class="lang-btn" id="btn-both" onclick="setLang('both')">🌐 Dono</button>
+    </div>
+  </div>
+
+  <!-- STORY -->
+  <main style="position:relative;z-index:10;padding:20px 0 80px" id="story-main">
+
+    <!-- FASL 1 -->
+    <div class="us-chapter">
+      <div class="us-card">
+        <p class="us-num">Fasl Awwal — Chapter One</p>
+        <h2 class="us-title-en">The House Nobody Spoke Of</h2>
+        <p class="us-title-ur">Woh Ghar — Jis Ka Koi Zikr Na Karta</p>
+        <div class="us-body">
+          <p class="us-en">Nobody on Gallows Road spoke of the house at number seven. Not the old woman who sold fruit at the corner, not the children who played until dark, not even the stray dogs — they crossed the road to avoid its shadow.</p>
+          <p class="us-ur">Gallows Road par number saat wale ghar ka koi zikr nahi karta tha. Na woh budhiya jo coron par phal bechti thi, na woh bachche jo andhera hone tak khelate the, yahan tak ke aawara kutte bhi — woh us ghar ki chhaon se bachne ke liye sadak par doosri taraf chale jaate the.</p>
+          <p class="us-en">You moved in on a Tuesday. The estate agent smiled too wide. He handed you the keys without looking at the door.</p>
+          <p class="us-ur">Tum Mangal ke din andar aaye. Agent bahut zyada muskura raha tha. Usne chabi dete waqt darwaaze ki taraf dekha hi nahi.</p>
+          <p class="us-en"><span class="hl">That night, behind the walls, something breathed.</span></p>
+          <p class="us-ur"><span class="hl-ur">Us raat, deewaron ke peechay, kuch saansen le raha tha.</span></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Death image 1 -->
+    <div class="us-chapter">
+      <div class="death-img-block">
+        <span class="death-img-emoji">💀</span>
+        <p class="death-caption">☠ Victim #1 — The Previous Owner</p>
+        <p class="death-caption-ur">Shikaar #1 — Pehle Wala Maalik</p>
+        <p style="font-size:.82rem;color:#555;margin-top:8px;line-height:1.7">
+          Found on October 14, 1993. Cause of death: unknown.<br>
+          <span style="color:#6a2a2a;font-style:italic">14 October 1993 ko mila. Maut ki wajah: anjaan.</span>
+        </p>
+      </div>
+    </div>
+
+    <div class="chapter-divider">☠</div>
+
+    <!-- FASL 2 -->
+    <div class="us-chapter">
+      <div class="us-card">
+        <p class="us-num">Fasl Doum — Chapter Two</p>
+        <h2 class="us-title-en">The Mirror That Remembered</h2>
+        <p class="us-title-ur">Woh Aaina — Jo Yaad Rakhta Tha</p>
+        <div class="us-body">
+          <p class="us-en">On the third day you found the mirror in the cellar. Six feet tall. Black wood frame carved with symbols you did not recognise. The glass was perfectly clear — not a trace of dust, as though someone had polished it that morning.</p>
+          <p class="us-ur">Teesre din tumne ghar ke andar ek aaina paya. Chhe foot uncha. Kaale lakdi ka frame jis par ajeeb nishaanaat khude hue the. Shesha bilkul saaf tha — jaise kisi ne aaj subah saaf kiya ho.</p>
+          <p class="us-en">You stood before it and straightened your shirt. Your reflection straightened its shirt <span class="hl">three seconds later.</span></p>
+          <p class="us-ur">Tum us ke saamne khade hue aur apni qameez seedhi ki. Tumhari parchhain ne apni qameez seedhi ki — <span class="hl-ur">teen second baad.</span></p>
+          <p class="us-en">You ran. At 3:14 AM something knocked on your locked bedroom door — from the inside.</p>
+          <p class="us-ur">Tum bhaage. Raat 3:14 baje, andar se band darwaaze par kisi ne dastak di — kamre ke andar se.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mid scare 1 -->
+    <div class="us-chapter">
+      <div class="mid-scare">
+        <p>Kya tum darr gaye? Aage parhne se pehle — ek lamhe ke liye aankhein band karo.</p>
+        <button class="btn-horror" onclick="HorrorScare.run('👁','AAINA TUMHEIN DEKH RAHA HAI!')" style="padding:12px 32px;font-size:.85rem">
+          👁 Aaina Dekhna Hai?
+        </button>
+      </div>
+    </div>
+
+    <div class="chapter-divider">🩸</div>
+
+    <!-- FASL 3 -->
+    <div class="us-chapter">
+      <div class="us-card">
+        <p class="us-num">Fasl Soum — Chapter Three</p>
+        <h2 class="us-title-en">The Children in the Garden</h2>
+        <p class="us-title-ur">Bagheeche Ke Bachche</p>
+        <div class="us-body">
+          <p class="us-en">On the fifth morning you saw them. Two children beyond the iron fence. A boy and a girl. Woollen coats in the August heat. They were facing your window. Perfectly still.</p>
+          <p class="us-ur">Paanchwe din subah tum ne unhe dekha. Do bachche — lohe ki jangla ke paar. Ek larka, ek larki. August ki garmi mein uni coaton mein. Tumhare khirki ki taraf munh kiye, bilkul khamosh, bilkul saakoon.</p>
+          <p class="us-en">You watched for twenty minutes. When the phone rang and you looked away for one second — they were gone.</p>
+          <p class="us-ur">Tum ne bees minute dekha. Jab phone bajaa aur ek lamhe ke liye nazar hati — woh gayab the.</p>
+          <p class="us-en">You searched online. You found the newspaper photograph from October 1993.</p>
+          <p class="us-ur">Tum ne internet par dhundha. October 1993 ka akhbaar mila.</p>
+          <p class="us-en"><span class="hl">The same children. From 31 years ago. Staring from the screen.</span></p>
+          <p class="us-ur"><span class="hl-ur">Wohi bachche. 31 saal pehle ke. Screen se tumhe ghoor rahe the.</span></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Death image 2 -->
+    <div class="us-chapter">
+      <div class="death-img-block" style="border-color:rgba(80,0,80,.5)">
+        <span class="death-img-emoji">👧</span>
+        <p class="death-caption" style="color:#880088">☠ Victim #2 — The Girl</p>
+        <p class="death-caption-ur" style="color:#882288">Shikaar #2 — Larki</p>
+        <p style="font-size:.82rem;color:#555;margin-top:8px;line-height:1.7">
+          Age: 8. Last seen October 14, 1993. Never found.<br>
+          <span style="color:#5a2a5a;font-style:italic">Umar: 8 saal. Aakhri baar 14 October 1993 ko dekha gaya. Kabhi nahi mila.</span>
+        </p>
+      </div>
+    </div>
+
+    <div class="chapter-divider">💀</div>
+
+    <!-- FASL 4 -->
+    <div class="us-chapter">
+      <div class="us-card">
+        <p class="us-num">Fasl Charum — Chapter Four</p>
+        <h2 class="us-title-en">The Writing Behind the Tiles</h2>
+        <p class="us-title-ur">Tiles Ke Peechay Likha Hua</p>
+        <div class="us-body">
+          <p class="us-en">A loose tile fell from the bathroom wall. Behind it, scratched into plaster — the same phrase, written over and over until it covered every inch:</p>
+          <p class="us-ur">Bathroom ki ek tile girti hai. Peechay, plaster par khuncha hua — ek hi jumla, baar baar, jab tak har inch chhup na jaye:</p>
+          <p class="us-en" style="text-align:center;letter-spacing:4px;font-size:1.05rem;padding:16px 0;color:var(--crimson)"><strong>DON'T OPEN THE BASEMENT DOOR</strong></p>
+          <p class="us-ur" style="text-align:center;letter-spacing:2px;font-size:1rem;padding:10px 0;color:#ffaa44"><strong>TAH KHANA KA DARWAAZA MAT KHOLNA</strong></p>
+          <p class="us-en">That night the basement door opened by itself. Cold air. The smell of earth and copper. From the darkness below, a sound. A voice — in your own voice — said:</p>
+          <p class="us-ur">Us raat tah khane ka darwaaza khud khul gaya. Thandi hawa. Mitti aur taamba ki boo. Neeche andheron se awaaz aayi. Teri apni awaaz mein:</p>
+          <p class="us-en"><span class="hl">"You shouldn't have come down here."</span></p>
+          <p class="us-ur"><span class="hl-ur">"Tujhe yahan nahi aana chahiye tha."</span></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mid scare 2 -->
+    <div class="us-chapter">
+      <div class="mid-scare">
+        <p>Tah khana khol dete hain? Darwaaza tumhare liye intizaar kar raha hai...</p>
+        <button class="btn-horror" onclick="HorrorFX.shake(15,500);HorrorAudio.playCreak();setTimeout(()=>HorrorScare.run('👹','TAH KHANA SE NIKAL GAYA!'),1200)"
+          style="padding:12px 32px;font-size:.85rem">
+          🚪 Darwaaza Kholo
+        </button>
+      </div>
+    </div>
+
+    <div class="chapter-divider">👁</div>
+
+    <!-- FASL 5 -->
+    <div class="us-chapter">
+      <div class="us-card">
+        <p class="us-num">Fasl Panjum — Chapter Five</p>
+        <h2 class="us-title-en">The Killer in the Dark</h2>
+        <p class="us-title-ur">Andheron Ka Qatil</p>
+        <div class="us-body">
+          <p class="us-en">His name — as best the records show — was Hargrove. He lived in the house from 1962 to 1993. The neighbours remembered a quiet man. Always polite. Always watching.</p>
+          <p class="us-ur">Uska naam — jitna records mein hai — Hargrove tha. Woh 1962 se 1993 tak is ghar mein raha. Parosi yaad karte hain ek khamosh aadmi. Hamesha tarteeb. Hamesha dekhta rehta.</p>
+          <p class="us-en">When police entered on October 14th, 1993, they found the dinner table set for five. Three plates of cold food. Two chairs overturned. The photographs on the wall — all facing inward.</p>
+          <p class="us-ur">Jab police 14 October 1993 ko andar aayi, khane ki mez par paanch logon ke liye setting thi. Teeen plate thanda khana. Do kursiyan ulti pari thin. Deewaron ki tasveereen — sab andar ki taraf munh kiye hue.</p>
+          <p class="us-en">Hargrove was never found.</p>
+          <p class="us-ur"><span class="hl-ur">Hargrove kabhi nahi mila.</span></p>
+          <p class="us-en"><span class="hl">The last entry in his diary read: "They're in the walls now. All of them. Waiting."</span></p>
+          <p class="us-ur"><span class="hl-ur">Us ki diary ki aakhri satren: "Woh ab deewaron mein hain. Sab. Intizaar kar rahe hain."</span></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Death image 3 — Killer silhouette -->
+    <div class="us-chapter">
+      <div class="death-img-block" style="border-color:rgba(139,0,0,.6)">
+        <span class="death-img-emoji">🔪</span>
+        <p class="death-caption">☠ The Killer — Hargrove</p>
+        <p class="death-caption-ur">Qatil — Hargrove</p>
+        <p style="font-size:.82rem;color:#555;margin-top:8px;line-height:1.7">
+          5 confirmed victims. Location unknown. Still active.<br>
+          <span style="color:#6a1a1a;font-style:italic">5 yaqeeni shikaars. Jagah maloom nahi. Abhi bhi sargarmi hai.</span>
+        </p>
+        <div style="margin-top:16px;padding:12px;background:rgba(80,0,0,.2);border-radius:4px;border:1px dashed rgba(139,0,0,.3)">
+          <p style="font-size:.78rem;color:var(--blood);font-family:var(--font-gothic);letter-spacing:2px">
+            ⚠ POLICE WARNING: Do not approach. Do not engage.<br>
+            <span style="color:#6a2a2a;font-style:italic">Pulis ki khabardar: Nazdeek mat jao. Baat mat karo.</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="chapter-divider">🔪</div>
+
+    <!-- FASL 6 -->
+    <div class="us-chapter">
+      <div class="us-card">
+        <p class="us-num">Fasl Shashum — Chapter Six</p>
+        <h2 class="us-title-en">The Last Night</h2>
+        <p class="us-title-ur">Aakhri Raat</p>
+        <div class="us-body">
+          <p class="us-en">By the seventh day you stopped sleeping. You sat in the hallway with every light burning and watched the shadows. At 3:14 AM the entire house went dark. Not a power cut — the streetlights still burned. Every bulb simply died, simultaneously.</p>
+          <p class="us-ur">Saatwen din tak neend chhoot gayi. Tum darwaaze par baithe rahe, har bulb jala ke, andheron ko dekhte rahe. Raat 3:14 baje poora ghar andhere mein doob gaya. Bijli nahi gayi — bahar ke batti jal rahi thin. Har bulb ek saath bujh gaya.</p>
+          <p class="us-en">Then came the footsteps. Slow. From the basement. Up the stairs. Stopping outside your door.</p>
+          <p class="us-ur">Phir qadam aye. Aahista. Tah khane se. Seedhiyon par. Tumhare darwaaze ke bahar ruk gaye.</p>
+          <p class="us-en">Three knocks. The same three knocks from that first night.</p>
+          <p class="us-ur">Teen dastak. Wohi teen dastak — pehli raat wali.</p>
+          <p class="us-en"><span class="hl">You did not open the door. You packed a bag at dawn and walked out and did not look back.</span></p>
+          <p class="us-ur"><span class="hl-ur">Tum ne darwaaza nahi khola. Subah ek thaila uthaya aur bahar nikal gaye. Peechay nahi dekha.</span></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Death image 4 -->
+    <div class="us-chapter">
+      <div class="death-img-block">
+        <span class="death-img-emoji">🪦</span>
+        <p class="death-caption">☠ Victim #3, #4, #5 — The Hargrove Family</p>
+        <p class="death-caption-ur">Shikaar #3, 4, 5 — Hargrove Khaandaan</p>
+        <p style="font-size:.82rem;color:#555;margin-top:8px;line-height:1.7">
+          Buried in the basement. Under the floor. Still there.<br>
+          <span style="color:#6a2a2a;font-style:italic">Tah khane mein dafan. Farsh ke neeche. Abhi bhi wahan hain.</span>
+        </p>
+      </div>
+    </div>
+
+    <div class="chapter-divider">☠</div>
+
+    <!-- FASL 7 — FINAL -->
+    <div class="us-chapter" id="final-chapter">
+      <div class="us-card" style="border-left-color:var(--blood)">
+        <p class="us-num" style="color:var(--blood)">Fasl Haftum — Final Chapter</p>
+        <h2 class="us-title-en">It Followed You Home</h2>
+        <p class="us-title-ur">Woh Tumhare Peeche Aa Gaya</p>
+        <div class="us-body">
+          <p class="us-en">Three weeks later. Your city apartment. You had almost convinced yourself it was over. You slept again. You laughed again.</p>
+          <p class="us-ur">Teen haftay baad. Tumhara shehar wala flat. Tum ne apne aap ko samjha liya tha — sab khatam ho gaya. Phir se neend aayi. Phir se hansi aayi.</p>
+          <p class="us-en">On a Tuesday night — exactly one month after moving in — you woke at 3:14 AM.</p>
+          <p class="us-ur">Ek Mangal ki raat — theek ek mahine baad — raat 3:14 baje aankhein khulein.</p>
+          <p class="us-en">The room was cold. In the corner, where the shadow fell thickest, something was standing.</p>
+          <p class="us-ur">Kamra thanda tha. Kone mein, jahan andhera ghana tha — kuch khada tha.</p>
+          <p class="us-en">It tilted its head. And in the mirror on the wall, your reflection was already sitting up — watching you — before you moved.</p>
+          <p class="us-ur">Us ne apna sar jhukaya. Aur deewaar ke aaine mein — tumhari parchhain pehle se baitha tha. Tumhein dekh raha tha. Tum hile nahi the abhi.</p>
+          <p class="us-en" style="text-align:center;font-size:.92rem;color:#555;padding:16px 0;letter-spacing:4px">. . .</p>
+          <p class="us-en" style="text-align:center;font-size:.95rem;color:var(--crimson);font-style:italic">Kya tum abhi bhi parh rahe ho?</p>
+          <p class="us-en" style="text-align:center;font-size:.85rem;color:#444;margin-top:8px">Peechay dekho. Abhi. Seedha.</p>
+          <p class="us-ur" style="text-align:center;font-size:.88rem;color:var(--crimson);font-style:italic;margin-top:6px">Are you still reading? Look behind you. Right now.</p>
+        </div>
+        <div style="text-align:center;margin-top:32px">
+          <button class="btn-horror" onclick="HorrorScare.run('👹','PAKRA GAYA! WOH AA GAYA! 😱')" style="padding:18px 48px;font-size:1rem">
+            ☠ Aakhri Satar Paro
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Epilogue -->
+    <div id="epilogue" style="display:none;max-width:780px;margin:0 auto;padding:0 20px 40px">
+      <div style="text-align:center;padding:40px;border:1px solid var(--border);border-radius:4px;background:rgba(10,0,0,.6)">
+        <div style="font-size:4rem;margin-bottom:16px">☠️</div>
+        <h3 style="font-family:var(--font-gothic);font-size:1.4rem;color:var(--ghost);margin-bottom:14px;text-shadow:var(--glow-red)">
+          Tum Bachgaye — Is Baar
+        </h3>
+        <p style="color:#666;max-width:460px;margin:0 auto 24px;line-height:1.8;font-size:.9rem">
+          Mubarak ho — Andheri Kahani khatam hui.<br>
+          Ab ye link apne doston ko bhejo aur unhe darrao.<br>
+          <em style="color:#ff6666">"Yaar ek interesting kahani hai — zaroor parho!" — bas itna kaho.</em>
+        </p>
+        <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+          <button class="btn-horror" onclick="copyPrankLink()">📋 Link Share Karo</button>
+          <a href="killer.html" class="btn-horror btn-ghost">🔪 Qatil Se Milo</a>
+        </div>
+        <p id="copy-feedback" style="margin-top:14px;color:#55ff55;font-size:.9rem;opacity:0;transition:opacity .5s;min-height:20px"></p>
+      </div>
+    </div>
+
+  </main>
+
+  <footer>
+    <span class="footer-logo">☠ DarkVault</span>
+    <ul class="footer-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="killer.html">Killer</a></li>
+      <li><a href="chapters.html">Story</a></li>
+      <li><a href="jumpscare.html">Scream Room</a></li>
+    </ul>
+    <div class="footer-divider"></div>
+    <p class="footer-copy">© 2026 DarkVault · Kahani khatam nahi hoti 😈</p>
+  </footer>
+
+  <div id="countdown-overlay"><div id="countdown-num">3</div><div id="countdown-label">BRACE YOURSELF…</div></div>
+  <div id="jumpscare-screen"><div id="scare-emoji">👹</div><div id="scare-text">BOO!</div></div>
+  <div id="aftermath-screen">
+    <div class="aftermath-skull">💀</div>
+    <h2 class="aftermath-title">PAKRA GAYA! 😂</h2>
+    <p class="aftermath-msg">
+      Kahani ne tumhein dara diya! Ab ye link apne doston ko bhejo.<br>
+      <em style="color:#ff6666">Unhe bolo — "yaar ek achhi kahani hai."</em>
+    </p>
+    <div class="aftermath-actions">
+      <button class="btn-horror" onclick="copyPrankLink()">📋 Share Karo</button>
+      <button class="btn-horror btn-ghost" onclick="closeAftermath();document.getElementById('epilogue').style.display='block'">📖 Aakhir Dekho</button>
+      <a href="killer.html" class="btn-horror btn-ghost">🔪 Killer</a>
+    </div>
+    <p id="copy-feedback" style="margin-top:16px;color:#55ff55;font-size:.9rem;opacity:0;transition:opacity .5s;min-height:22px"></p>
+  </div>
+
+  <script src="horror.js"></script>
+  <script>
+    let currentLang = 'en';
+
+    function setLang(lang) {
+      currentLang = lang;
+      HorrorAudio.unlock();
+      HorrorAudio.playTone(220, .2, 'sine', .04);
+      ['en','ur','both'].forEach(l => document.getElementById('btn-'+l).classList.toggle('active', l===lang));
+
+      document.querySelectorAll('.us-body').forEach(body => {
+        body.querySelectorAll('.us-en').forEach(el => {
+          el.style.display = (lang==='en'||lang==='both') ? 'block' : 'none';
+        });
+        body.querySelectorAll('.us-ur').forEach(el => {
+          el.style.display = (lang==='ur'||lang==='both') ? 'block' : 'none';
+        });
+        if (lang==='both') body.classList.add('us-both'); else body.classList.remove('us-both');
+      });
+    }
+
+    // Scroll reveal
+    document.querySelectorAll('.us-chapter').forEach(el => {
+      new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            el.classList.add('visible');
+            HorrorAudio.unlock();
+            if (Math.random() < .3) HorrorAudio.playTone(40+Math.random()*20, .5, 'sine', .02);
+          }
+        });
+      }, { threshold: .15 }).observe(el);
+    });
+
+    // Default: show english
+    setLang('en');
+  </script>
+</body>
+</html>

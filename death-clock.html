@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Death Clock — When Will You Die? · DarkVault</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=Special+Elite&family=Cinzel+Decorative:wght@400;700;900&family=UnifrakturMaguntia&display=swap" rel="stylesheet"/>
+  <style>
+    body { background:#020002; }
+    .dc-bg {
+      position:fixed; inset:0;
+      background:radial-gradient(ellipse at 50% 50%,#080008,#000);
+      animation:dcBg 8s ease-in-out infinite alternate; pointer-events:none; z-index:0;
+    }
+    @keyframes dcBg {
+      0%   { background:radial-gradient(ellipse at 50% 50%,#080008,#000); }
+      100% { background:radial-gradient(ellipse at 50% 50%,#0d000d,#020002); }
+    }
+
+    /* ---- Form ---- */
+    .dc-wrap { max-width:600px; margin:0 auto; padding:40px 20px 80px; position:relative; z-index:10; }
+
+    .dc-form-card {
+      border:1px solid rgba(80,0,80,.5); background:rgba(8,0,8,.8);
+      border-radius:4px; padding:36px 36px 32px;
+      box-shadow:0 0 40px rgba(120,0,120,.15), inset 0 0 20px rgba(0,0,0,.5);
+    }
+    .dc-form-card h2 {
+      font-family:var(--font-gothic); font-size:1.1rem; letter-spacing:4px;
+      color:#cc44cc; text-transform:uppercase; margin-bottom:24px;
+      text-shadow:0 0 16px rgba(180,0,180,.4);
+    }
+
+    .form-row { margin-bottom:20px; }
+    .form-label {
+      display:block; font-family:var(--font-gothic); font-size:.6rem;
+      letter-spacing:2px; color:#5a0a5a; text-transform:uppercase; margin-bottom:8px;
+    }
+    .form-input, .form-select {
+      width:100%; background:#08000a; border:1px solid rgba(80,0,80,.4);
+      color:#cc88cc; font-family:var(--font-story); font-size:.95rem;
+      padding:12px 16px; border-radius:3px; outline:none; transition:all .3s;
+    }
+    .form-input::placeholder { color:#3a0a3a; }
+    .form-input:focus,
+    .form-select:focus { border-color:#880088; box-shadow:0 0 14px rgba(150,0,150,.2); }
+    .form-select option { background:#0a000a; }
+
+    .form-row-2col { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+
+    /* Fake disclaimer */
+    .disclaimer {
+      border:1px solid rgba(60,0,60,.3); border-radius:4px;
+      padding:14px 18px; background:rgba(5,0,5,.5);
+      font-size:.75rem; color:#3a1a3a; line-height:1.7; margin-bottom:20px;
+    }
+    .disclaimer strong { color:#6a2a6a; }
+
+    /* ---- Processing screen ---- */
+    #processing {
+      display:none; text-align:center; padding:20px 0;
+    }
+    .process-step {
+      display:flex; align-items:center; gap:12px;
+      padding:10px 0; border-bottom:1px solid rgba(60,0,60,.2);
+      opacity:0; transform:translateY(8px); transition:all .4s ease;
+    }
+    .process-step.show { opacity:1; transform:translateY(0); }
+    .ps-icon { font-size:1.2rem; flex-shrink:0; }
+    .ps-text {
+      font-family:var(--font-gothic); font-size:.65rem; letter-spacing:2px;
+      color:#5a2a5a; text-transform:uppercase; flex:1; text-align:left;
+    }
+    .ps-check { font-size:.9rem; opacity:0; transition:opacity .3s; }
+    .process-step.done .ps-check { opacity:1; }
+
+    /* ---- Result screen ---- */
+    #result-screen { display:none; text-align:center; }
+
+    .death-date-box {
+      border:2px solid rgba(100,0,100,.6); border-radius:6px;
+      padding:28px; margin:20px 0;
+      background:rgba(10,0,10,.8);
+      box-shadow:0 0 40px rgba(150,0,150,.2), inset 0 0 20px rgba(0,0,0,.5);
+      animation:resultGlow 2s ease-in-out infinite alternate;
+    }
+    @keyframes resultGlow {
+      0%   { box-shadow:0 0 30px rgba(150,0,150,.2); }
+      100% { box-shadow:0 0 60px rgba(200,0,200,.5); }
+    }
+    .death-label {
+      font-family:var(--font-gothic); font-size:.65rem; letter-spacing:4px;
+      color:#660066; text-transform:uppercase; margin-bottom:12px;
+    }
+    .death-date {
+      font-family:var(--font-horror); font-size:clamp(2rem,6vw,3.5rem);
+      color:#ff44ff; text-shadow:0 0 20px rgba(255,0,255,.6), 0 0 40px rgba(150,0,150,.4);
+      margin-bottom:8px; letter-spacing:4px;
+    }
+    .death-time-left {
+      font-family:var(--font-gothic); font-size:.75rem; letter-spacing:2px;
+      color:#8b4a8b; text-transform:uppercase;
+    }
+
+    /* Countdown display */
+    .countdown-digits {
+      display:grid; grid-template-columns:repeat(4,1fr); gap:12px;
+      margin:20px 0;
+    }
+    .cd-unit {
+      border:1px solid rgba(80,0,80,.3); padding:14px 8px;
+      border-radius:3px; background:rgba(8,0,8,.6); text-align:center;
+    }
+    .cd-num {
+      font-family:var(--font-horror); font-size:clamp(1.4rem,4vw,2.2rem);
+      color:#cc44cc; text-shadow:0 0 12px rgba(200,0,200,.5); display:block;
+    }
+    .cd-label {
+      font-family:var(--font-gothic); font-size:.5rem; letter-spacing:2px;
+      color:#440044; text-transform:uppercase; margin-top:4px; display:block;
+    }
+
+    /* Creepy stats */
+    .death-stats {
+      display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:16px 0;
+    }
+    .ds-item {
+      border:1px solid rgba(60,0,60,.25); padding:12px;
+      border-radius:3px; background:rgba(5,0,5,.5);
+    }
+    .ds-label { font-family:var(--font-gothic); font-size:.55rem; letter-spacing:2px; color:#440044; text-transform:uppercase; margin-bottom:4px; display:block; }
+    .ds-val   { font-family:var(--font-gothic); font-size:.85rem; color:#aa44aa; }
+
+    @media(max-width:480px){ .form-row-2col{ grid-template-columns:1fr; } .countdown-digits{ grid-template-columns:repeat(2,1fr); } }
+  </style>
+</head>
+<body>
+  <div class="dc-bg"></div>
+  <div id="flicker"></div>
+  <div class="vignette"></div>
+  <div id="particles"></div>
+  <div id="cursor"></div>
+  <div id="cursor-dot"></div>
+  <div class="blood-drip">
+    <span style="height:55px;animation-duration:4s"></span>
+    <span style="height:80px;animation-duration:5.1s;animation-delay:.7s"></span>
+    <span style="height:46px;animation-duration:3.7s;animation-delay:1.4s"></span>
+    <span style="height:100px;animation-duration:5.8s;animation-delay:.3s"></span>
+    <span style="height:66px;animation-duration:4.4s;animation-delay:2s"></span>
+    <span style="height:86px;animation-duration:5.3s;animation-delay:.9s"></span>
+  </div>
+
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">☠ DarkVault</a>
+    <button class="nav-hamburger" id="nav-burger"><span></span><span></span><span></span></button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="chapters.html">📖 Story</a></li>
+      <li><a href="asylum.html">🏚 Asylum</a></li>
+      <li><a href="forest.html">🌲 Forest</a></li>
+      <li><a href="ritual.html">🕯 Ritual</a></li>
+      <li><a href="ouija.html">🔮 Ouija</a></li>
+      <li><a href="maze.html">🌀 Maze</a></li>
+      <li><a href="cursed-quiz.html">📋 Quiz</a></li>
+      <li><a href="death-clock.html">⏳ Death</a></li>
+      <li><a href="gallery.html">🖼 Gallery</a></li>
+      <li><a href="jumpscare.html">💀 Scream</a></li>
+    </ul>
+  </nav>
+
+  <section class="page-hero" style="background:radial-gradient(ellipse at 50% 80%,#0d000d,#000);min-height:42vh">
+    <div style="position:relative;z-index:10;text-align:center">
+      <div style="font-size:4rem;margin-bottom:12px;filter:drop-shadow(0 0 20px rgba(200,0,200,.6))">⏳</div>
+      <h1 class="page-hero-title glitch" data-text="Death Clock">Death Clock</h1>
+      <p class="page-hero-sub" style="color:#aa44aa">
+        Enter your details. We'll calculate exactly when your time runs out.<br>
+        <span style="color:#bb3333">Based on ancient actuarial tables and dark prophecy.</span><br>
+        <span style="color:#444;font-size:.82rem">🔮 For entertainment purposes. Obviously. Mostly.</span>
+      </p>
+    </div>
+  </section>
+
+  <div class="dc-wrap">
+
+    <!-- FORM -->
+    <div id="form-section">
+      <div class="dc-form-card">
+        <h2>💀 Calculate Your Fate</h2>
+
+        <div class="disclaimer">
+          <strong>DISCLAIMER:</strong> The Death Clock uses a proprietary algorithm combining
+          astrology, numerology, ancient Mesopotamian prophecy texts, and actuarial science.
+          Results are <strong>99.7% accurate</strong>. DarkVault accepts no responsibility for
+          existential crises following your reading.
+        </div>
+
+        <div class="form-row">
+          <label class="form-label">Your Full Name</label>
+          <input class="form-input" id="f-name" type="text" placeholder="Enter your name…" autocomplete="off"/>
+        </div>
+
+        <div class="form-row form-row-2col">
+          <div>
+            <label class="form-label">Date of Birth</label>
+            <input class="form-input" id="f-dob" type="date"/>
+          </div>
+          <div>
+            <label class="form-label">Birth Time (approx.)</label>
+            <input class="form-input" id="f-time" type="time" value="08:00"/>
+          </div>
+        </div>
+
+        <div class="form-row form-row-2col">
+          <div>
+            <label class="form-label">Blood Type</label>
+            <select class="form-select" id="f-blood">
+              <option value="">Select…</option>
+              <option>A+</option><option>A-</option>
+              <option>B+</option><option>B-</option>
+              <option>AB+</option><option>AB-</option>
+              <option>O+</option><option>O-</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Sleep Quality</label>
+            <select class="form-select" id="f-sleep">
+              <option value="">Select…</option>
+              <option>Excellent</option>
+              <option>Good</option>
+              <option>Poor</option>
+              <option>I don't sleep</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label class="form-label">Biggest Fear</label>
+          <select class="form-select" id="f-fear">
+            <option value="">Select…</option>
+            <option>The Dark</option>
+            <option>Being Alone</option>
+            <option>Something Following Me</option>
+            <option>Mirrors at Night</option>
+            <option>That Feeling You're Being Watched</option>
+            <option>I'm not afraid of anything</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label class="form-label">Final Question</label>
+          <select class="form-select" id="f-final">
+            <option value="">Select…</option>
+            <option>Yes, I feel like something is in the room with me</option>
+            <option>No, I'm completely alone and totally fine</option>
+            <option>I'd rather not answer that</option>
+            <option>Please stop. I want to close this tab.</option>
+          </select>
+        </div>
+
+        <button class="btn-horror" onclick="calculateDeath()" style="width:100%;padding:16px;font-size:1rem;margin-top:8px">
+          ⏳ Calculate My Death Date
+        </button>
+      </div>
+    </div>
+
+    <!-- PROCESSING -->
+    <div id="processing">
+      <div style="font-size:3rem;margin-bottom:20px;animation:pentaSpin 4s linear infinite">⏳</div>
+      <h2 style="font-family:var(--font-gothic);font-size:1rem;letter-spacing:4px;color:#660066;text-transform:uppercase;margin-bottom:28px">
+        Calculating Your Fate…
+      </h2>
+      <div id="process-steps"></div>
+      <p id="process-msg" style="margin-top:20px;font-style:italic;color:#440044;font-size:.9rem;min-height:24px"></p>
+    </div>
+
+    <!-- RESULT -->
+    <div id="result-screen">
+      <div class="death-date-box">
+        <p class="death-label">📍 Your Death Date</p>
+        <div class="death-date" id="death-date-display">—</div>
+        <p class="death-time-left" id="death-time-left">Time remaining: calculating…</p>
+      </div>
+
+      <div class="countdown-digits">
+        <div class="cd-unit"><span class="cd-num" id="cd-years">00</span><span class="cd-label">Years</span></div>
+        <div class="cd-unit"><span class="cd-num" id="cd-days">000</span><span class="cd-label">Days</span></div>
+        <div class="cd-unit"><span class="cd-num" id="cd-hours">00</span><span class="cd-label">Hours</span></div>
+        <div class="cd-unit"><span class="cd-num" id="cd-mins">00</span><span class="cd-label">Minutes</span></div>
+      </div>
+
+      <div class="death-stats">
+        <div class="ds-item"><span class="ds-label">Cause of Death</span><span class="ds-val" id="ds-cause">—</span></div>
+        <div class="ds-item"><span class="ds-label">Confidence</span><span class="ds-val" id="ds-conf">—</span></div>
+        <div class="ds-item"><span class="ds-label">Last Words</span><span class="ds-val" id="ds-words">—</span></div>
+        <div class="ds-item"><span class="ds-label">Survival Tip</span><span class="ds-val" id="ds-tip">—</span></div>
+      </div>
+
+      <p id="death-warning" style="font-style:italic;color:#660066;font-size:.9rem;
+        margin:16px 0 24px;line-height:1.8;text-align:center"></p>
+
+      <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+        <button class="btn-horror" onclick="copyPrankLink()">📋 Send To Friends</button>
+        <button class="btn-horror btn-ghost" onclick="location.reload()">🔄 Recalculate</button>
+      </div>
+      <p id="copy-feedback" style="margin-top:14px;color:#55ff55;font-size:.9rem;opacity:0;transition:opacity .5s;min-height:20px"></p>
+    </div>
+
+  </div>
+
+  <footer>
+    <span class="footer-logo">☠ DarkVault</span>
+    <ul class="footer-links">
+      <li><a href="index.html">Home</a></li><li><a href="ouija.html">Ouija</a></li>
+      <li><a href="maze.html">Maze</a></li><li><a href="cursed-quiz.html">Quiz</a></li>
+      <li><a href="gallery.html">Gallery</a></li><li><a href="jumpscare.html">Scream Room</a></li>
+    </ul>
+    <div class="footer-divider"></div>
+    <p class="footer-copy">© 2026 DarkVault · Your clock is ticking 😈</p>
+  </footer>
+
+  <div id="countdown-overlay"><div id="countdown-num">3</div><div id="countdown-label">YOUR FATE IS SEALED…</div></div>
+  <div id="jumpscare-screen"><div id="scare-emoji">💀</div><div id="scare-text">TIME'S UP!</div></div>
+  <div id="aftermath-screen">
+    <div class="aftermath-skull">💀</div>
+    <h2 class="aftermath-title">GOTCHA! 😂</h2>
+    <p class="aftermath-msg">
+      You survived the Death Clock… for now.<br>
+      Share this link with your friends. Tell them it's an "interesting life expectancy calculator."<br>
+      <em style="color:#ff6666">Watch them fill in their details. Watch them wait. Watch them scream.</em>
+    </p>
+    <div class="aftermath-actions">
+      <button class="btn-horror" onclick="copyPrankLink()">📋 Share The Death Clock</button>
+      <button class="btn-horror btn-ghost" onclick="location.reload()">🔄 Recalculate</button>
+    </div>
+    <p id="copy-feedback" style="margin-top:16px;color:#55ff55;font-size:.9rem;opacity:0;transition:opacity .5s;min-height:22px"></p>
+  </div>
+
+  <script src="horror.js"></script>
+  <script>
+  const CAUSES = [
+    'Fright','Unexplained Circumstances','Something in the Dark',
+    'The Mirror','3:14 AM','It Found You','Never Identified'
+  ];
+  const LAST_WORDS = [
+    '"I heard something downstairs."',
+    '"It was just a shadow."',
+    '"Behind you."',
+    '"I should have closed that tab."',
+    '"Don\'t open the—"',
+    '"I thought it was a prank."'
+  ];
+  const TIPS = [
+    'Don\'t look in mirrors after midnight.',
+    'Never say "it\'s just the wind."',
+    'Always check under the bed. Always.',
+    'Stop reading horror websites.',
+    'It\'s too late for tips.',
+    'Close this tab. Right now.'
+  ];
+  const WARNINGS = [
+    'The entity identified in your reading has been notified of your date.',
+    'We are required to inform you that once calculated, the date cannot be changed.',
+    'Our records show this date has appeared in two other readings this week.',
+    'The algorithm flagged your profile as "high risk." We\'re not sure what that means.',
+    'You have been added to a list. We cannot tell you which list.'
+  ];
+
+  const PROCESS_STEPS = [
+    { icon:'🧬', text:'Cross-referencing birth data with ancient texts' },
+    { icon:'🔮', text:'Consulting the oracle database' },
+    { icon:'⭐', text:'Mapping astrological death markers' },
+    { icon:'📊', text:'Running actuarial models' },
+    { icon:'☠',  text:'Confirming with the Reaper\'s registry' },
+    { icon:'🩸', text:'Sealing your fate' },
+  ];
+
+  function calculateDeath() {
+    const name  = document.getElementById('f-name').value.trim();
+    const dob   = document.getElementById('f-dob').value;
+    if (!name || !dob) {
+      HorrorFX.shake(8,300);
+      HorrorAudio.unlock();
+      HorrorAudio.playTone(200,.3,'square',.06);
+      document.getElementById('f-name').style.borderColor = 'var(--blood)';
+      document.getElementById('f-dob').style.borderColor  = 'var(--blood)';
+      setTimeout(()=>{
+        document.getElementById('f-name').style.borderColor='';
+        document.getElementById('f-dob').style.borderColor='';
+      },1500);
+      return;
+    }
+
+    HorrorAudio.unlock();
+    HorrorAudio.playTone(60,1,'sine',.04);
+    document.getElementById('form-section').style.display   = 'none';
+    document.getElementById('processing').style.display     = 'block';
+
+    // Build steps
+    const stepsEl = document.getElementById('process-steps');
+    stepsEl.innerHTML = '';
+    PROCESS_STEPS.forEach(s => {
+      const div = document.createElement('div');
+      div.className = 'process-step';
+      div.innerHTML = `<span class="ps-icon">${s.icon}</span><span class="ps-text">${s.text}</span><span class="ps-check">✓</span>`;
+      stepsEl.appendChild(div);
+    });
+
+    const msgs = ['Analysing your soul…','Cross-referencing omens…','Dark patterns detected…','Final calculation in progress…','Date confirmed.'];
+    let mi = 0;
+    const msgEl = document.getElementById('process-msg');
+
+    // Animate each step
+    const stepEls = stepsEl.querySelectorAll('.process-step');
+    stepEls.forEach((el, i) => {
+      setTimeout(() => {
+        el.classList.add('show');
+        msgEl.textContent = msgs[Math.min(mi++, msgs.length-1)];
+        HorrorAudio.playTone(80+i*15,.25,'sine',.03);
+        setTimeout(() => el.classList.add('done'), 400);
+        if (i === 3) HorrorFX.shake(5,300);
+        if (i === 4) {
+          HorrorAudio.playTone(40,1,'sawtooth',.05);
+          msgEl.style.color = '#bb3333';
+        }
+      }, i * 700 + 300);
+    });
+
+    // Show result after steps
+    const totalDelay = PROCESS_STEPS.length * 700 + 1000;
+    setTimeout(() => {
+      document.getElementById('processing').style.display    = 'none';
+      showResult(name, dob);
+    }, totalDelay);
+  }
+
+  function showResult(name, dob) {
+    document.getElementById('result-screen').style.display = 'block';
+
+    // Generate fake death date — ~30-60 years from DOB
+    const birth    = new Date(dob);
+    const lifespan = 65 + Math.floor(Math.random() * 25);
+    const deathD   = new Date(birth);
+    deathD.setFullYear(deathD.getFullYear() + lifespan);
+    // Add some random months/days
+    deathD.setMonth(deathD.getMonth() + Math.floor(Math.random()*12));
+    deathD.setDate(deathD.getDate() + Math.floor(Math.random()*28));
+
+    const now    = new Date();
+    const diffMs = deathD - now;
+    const diffYr = Math.floor(diffMs / (1000*60*60*24*365.25));
+    const diffDy = Math.floor((diffMs % (1000*60*60*24*365.25)) / (1000*60*60*24));
+    const diffHr = Math.floor((diffMs % (1000*60*60*24)) / (1000*60*60));
+    const diffMn = Math.floor((diffMs % (1000*60*60)) / (1000*60));
+
+    const opts = {year:'long',month:'long',day:'numeric'};
+    document.getElementById('death-date-display').textContent =
+      deathD.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+
+    document.getElementById('death-time-left').textContent =
+      `${diffYr} years, ${diffDy} days, ${diffHr} hours and ${diffMn} minutes remain.`;
+
+    // Countdown
+    document.getElementById('cd-years').textContent = String(diffYr).padStart(2,'0');
+    document.getElementById('cd-days').textContent  = String(diffDy).padStart(3,'0');
+    document.getElementById('cd-hours').textContent = String(diffHr).padStart(2,'0');
+    document.getElementById('cd-mins').textContent  = String(diffMn).padStart(2,'0');
+
+    // Live countdown tick
+    setInterval(() => {
+      const remaining = deathD - new Date();
+      if (remaining <= 0) return;
+      const yr = Math.floor(remaining / (1000*60*60*24*365.25));
+      const dy = Math.floor((remaining % (1000*60*60*24*365.25)) / (1000*60*60*24));
+      const hr = Math.floor((remaining % (1000*60*60*24)) / (1000*60*60));
+      const mn = Math.floor((remaining % (1000*60*60)) / (1000*60));
+      document.getElementById('cd-years').textContent = String(yr).padStart(2,'0');
+      document.getElementById('cd-days').textContent  = String(dy).padStart(3,'0');
+      document.getElementById('cd-hours').textContent = String(hr).padStart(2,'0');
+      document.getElementById('cd-mins').textContent  = String(mn).padStart(2,'0');
+    }, 60000);
+
+    function rnd(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+    document.getElementById('ds-cause').textContent = rnd(CAUSES);
+    document.getElementById('ds-conf').textContent  = (94+Math.floor(Math.random()*5.9)).toFixed(1) + '%';
+    document.getElementById('ds-words').textContent = rnd(LAST_WORDS);
+    document.getElementById('ds-tip').textContent   = rnd(TIPS);
+    document.getElementById('death-warning').textContent = rnd(WARNINGS);
+
+    HorrorFX.shake(8,400);
+    HorrorAudio.playTone(40,2,'sawtooth',.05);
+
+    // THE JUMPSCARE — triggered after they've read their death date
+    setTimeout(() => {
+      HorrorScare.run('💀', "TIME'S UP! " + name.toUpperCase() + '!');
+    }, 5000);
+  }
+  </script>
+</body>
+</html>

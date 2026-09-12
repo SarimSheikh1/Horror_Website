@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Cursed Forest — DarkVault</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=Special+Elite&family=Cinzel+Decorative:wght@400;700;900&family=UnifrakturMaguntia&display=swap" rel="stylesheet"/>
+  <style>
+    body { background: #010501; }
+    .forest-hero {
+      background: radial-gradient(ellipse at 50% 100%, #001500 0%, #000 70%);
+      position: relative; overflow: hidden;
+    }
+    /* Animated tree silhouettes */
+    .trees {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 50%; display: flex; align-items: flex-end;
+      justify-content: space-around; pointer-events: none; z-index: 2;
+    }
+    .tree {
+      width: 0; height: 0;
+      border-left: solid transparent;
+      border-right: solid transparent;
+      border-bottom: solid #000;
+      position: relative;
+      animation: treeSway ease-in-out infinite alternate;
+    }
+    @keyframes treeSway {
+      0%   { transform: rotate(-1.5deg) translateX(-2px); }
+      100% { transform: rotate(1.5deg) translateX(2px); }
+    }
+    .tree::before {
+      content: ''; position: absolute; bottom: -20px; left: 50%;
+      transform: translateX(-50%);
+      width: 8px; height: 20px; background: #111;
+    }
+    .fog-layer {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 35%;
+      background: linear-gradient(to top, rgba(0,20,0,0.6) 0%, transparent 100%);
+      pointer-events: none; z-index: 3;
+      animation: fogDrift 8s ease-in-out infinite alternate;
+    }
+    @keyframes fogDrift {
+      0%   { transform: translateX(-3%) scaleX(1.06); opacity: 0.8; }
+      100% { transform: translateX(3%)  scaleX(0.94); opacity: 1; }
+    }
+
+    /* Path progress */
+    .depth-meter {
+      position: fixed; right: 20px; top: 50%;
+      transform: translateY(-50%);
+      z-index: 100; display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .depth-track { width: 4px; height: 200px; background: #0a1a0a; border-radius: 2px; position: relative; }
+    .depth-fill { width: 100%; background: linear-gradient(to top, #004400, #00aa00);
+      border-radius: 2px; position: absolute; bottom: 0; height: 0%; transition: height 0.5s ease;
+      box-shadow: 0 0 6px rgba(0,180,0,0.4); }
+    .depth-label { font-family: var(--font-gothic); font-size: .5rem; letter-spacing: 2px;
+      color: #1a4a1a; text-transform: uppercase; writing-mode: vertical-lr; }
+
+    /* Encounter cards */
+    .encounter {
+      max-width: 700px; margin: 0 auto 50px; padding: 0 20px;
+      opacity: 0; transform: translateY(30px); transition: opacity .8s ease, transform .8s ease;
+    }
+    .encounter.visible { opacity: 1; transform: translateY(0); }
+    .encounter-card {
+      border: 1px solid #0a2a0a;
+      background: linear-gradient(135deg, rgba(0,15,0,.8), rgba(0,5,0,.6));
+      padding: 32px 36px; border-radius: 4px;
+      box-shadow: 0 0 30px rgba(0,80,0,.1), inset 0 0 20px rgba(0,0,0,.4);
+      position: relative;
+    }
+    .encounter-card::before {
+      content: attr(data-step);
+      position: absolute; top: -12px; left: 28px;
+      font-family: var(--font-gothic); font-size: .6rem; letter-spacing: 3px;
+      color: #004400; background: #010501; padding: 2px 10px;
+      text-transform: uppercase;
+    }
+    .enc-time { font-family: var(--font-gothic); font-size: .6rem; letter-spacing: 3px; color: #1a5a1a; text-transform: uppercase; margin-bottom: 8px; }
+    .enc-title { font-family: var(--font-gothic); font-size: 1.1rem; color: var(--ghost); margin-bottom: 14px; }
+    .enc-text { font-size: .9rem; color: #888; line-height: 1.9; }
+    .enc-text .danger { color: #ff4444; font-style: italic; }
+    .enc-text .nature { color: #4a8a4a; font-style: italic; }
+
+    .choice-row { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+    .choice-btn {
+      font-family: var(--font-gothic); font-size: .65rem; letter-spacing: 2px;
+      text-transform: uppercase; padding: 10px 20px; border-radius: 2px;
+      border: 1px solid #0a2a0a; background: rgba(0,20,0,.5); color: #4a7a4a;
+      transition: var(--transition); cursor: pointer;
+    }
+    .choice-btn:hover { border-color: #004400; color: #aaffaa; background: rgba(0,40,0,.4); box-shadow: 0 0 12px rgba(0,100,0,.3); }
+    .choice-result {
+      margin-top: 16px; padding: 14px 20px;
+      background: rgba(0,10,0,.8); border-left: 2px solid #002200;
+      font-size: .85rem; color: #666; line-height: 1.7; display: none;
+      border-radius: 0 4px 4px 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="flicker"></div>
+  <div class="vignette"></div>
+  <div id="particles"></div>
+  <div id="cursor"></div>
+  <div id="cursor-dot"></div>
+  <div class="blood-drip">
+    <span style="height:55px;animation-duration:4s"></span>
+    <span style="height:80px;animation-duration:5.2s;animation-delay:.8s"></span>
+    <span style="height:48px;animation-duration:3.6s;animation-delay:1.5s"></span>
+    <span style="height:98px;animation-duration:5.8s;animation-delay:.3s"></span>
+    <span style="height:68px;animation-duration:4.4s;animation-delay:2s"></span>
+    <span style="height:88px;animation-duration:5.3s;animation-delay:1s"></span>
+  </div>
+
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">☠ DarkVault</a>
+    <button class="nav-hamburger" id="nav-burger"><span></span><span></span><span></span></button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="chapters.html">📖 Story</a></li>
+      <li><a href="asylum.html">🏚 Asylum</a></li>
+      <li><a href="forest.html">🌲 Forest</a></li>
+      <li><a href="ritual.html">🕯 Ritual</a></li>
+      <li><a href="gallery.html">🖼 Gallery</a></li>
+      <li><a href="jumpscare.html">💀 Scream</a></li>
+    </ul>
+  </nav>
+
+  <!-- FOREST HERO -->
+  <section class="page-hero forest-hero" style="min-height:70vh">
+    <div class="trees" id="trees"></div>
+    <div class="fog-layer"></div>
+    <div style="position:relative;z-index:10;text-align:center">
+      <div style="font-size:4rem;margin-bottom:16px;filter:drop-shadow(0 0 20px rgba(0,180,0,.4))">🌲</div>
+      <h1 class="page-hero-title glitch" data-text="The Cursed Forest">The Cursed Forest</h1>
+      <p class="page-hero-sub">
+        You entered at dusk. The trees closed in.<br>
+        <span style="color:#4a8a4a">There is no path back. There is only deeper.</span>
+      </p>
+      <div style="margin-top:32px">
+        <button class="btn-horror" id="enter-forest-btn" onclick="beginForest()">
+          🌲 Enter The Forest
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Depth meter -->
+  <div class="depth-meter" id="depth-meter" style="opacity:0;transition:opacity 1s">
+    <span class="depth-label">Depth</span>
+    <div class="depth-track"><div class="depth-fill" id="depth-fill"></div></div>
+    <span class="depth-label">Danger</span>
+  </div>
+
+  <!-- FOREST PATH -->
+  <main style="padding:60px 0;background:linear-gradient(to bottom,#010501,#000)">
+    <div id="forest-intro" style="max-width:600px;margin:0 auto;text-align:center;padding:0 20px 60px;display:none">
+      <p style="font-size:1rem;color:#4a7a4a;line-height:1.8;font-style:italic">
+        "The Grimvale Forest has swallowed 23 people since 1970. Searchers found no bodies — only trails that ended mid-path, as though the walkers simply ceased to exist."
+      </p>
+      <p style="font-size:.75rem;color:#333;margin-top:10px;font-family:var(--font-gothic);letter-spacing:2px">— LOCAL LEGEND, GRIMVALE COUNTY</p>
+    </div>
+
+    <!-- Encounter 1 -->
+    <div class="encounter" id="enc1">
+      <div class="encounter-card" data-step="Encounter 01">
+        <p class="enc-time">7:43 PM · 0.3 miles in</p>
+        <h3 class="enc-title">The Path Splits</h3>
+        <p class="enc-text">
+          The trail forks without warning. Both paths look identical — same width, same undergrowth, same canopy of black branches overhead. You check your phone. <span class="danger">No signal.</span> The GPS shows only a grey blank where the forest should be. A light breeze stirs the leaves. And then, from the left path, you hear something. A sound that takes you three full seconds to identify. <span class="danger">Someone crying.</span>
+        </p>
+        <div class="choice-row">
+          <button class="choice-btn" onclick="choose('enc1','left')">👈 Take the left path</button>
+          <button class="choice-btn" onclick="choose('enc1','right')">👉 Take the right path</button>
+          <button class="choice-btn" onclick="choose('enc1','back')">🔙 Try to go back</button>
+        </div>
+        <div class="choice-result" id="enc1-result"></div>
+      </div>
+    </div>
+
+    <!-- Encounter 2 -->
+    <div class="encounter" id="enc2">
+      <div class="encounter-card" data-step="Encounter 02">
+        <p class="enc-time">8:11 PM · 0.9 miles in</p>
+        <h3 class="enc-title">The Hanging Things</h3>
+        <p class="enc-text">
+          You find them hanging from the branches — dozens of them. Small bundles of sticks and string, tied into figures that are almost human. They cover a clearing perhaps twenty metres wide, spinning slowly in the still air. <span class="nature">No wind moves them.</span> In the centre of the clearing, a circle of stones around a long-dead fire. Among the ash, you see something white. Bones. Small ones. <span class="danger">Child-sized.</span>
+        </p>
+        <div class="choice-row">
+          <button class="choice-btn" onclick="choose('enc2','cross')">➡️ Cross the clearing</button>
+          <button class="choice-btn" onclick="choose('enc2','around')">↩️ Go around through the trees</button>
+          <button class="choice-btn" onclick="choose('enc2','bones')">🦴 Examine the bones</button>
+        </div>
+        <div class="choice-result" id="enc2-result"></div>
+      </div>
+    </div>
+
+    <!-- Encounter 3 -->
+    <div class="encounter" id="enc3">
+      <div class="encounter-card" data-step="Encounter 03">
+        <p class="enc-time">9:04 PM · 2.1 miles in</p>
+        <h3 class="enc-title">The Cabin</h3>
+        <p class="enc-text">
+          A log cabin, far from any road, light glowing warm through a single window. On the porch, a rocking chair moves slowly back and forth. The chair is empty. <span class="danger">The movement is not caused by wind.</span> A sign above the door reads, in fresh white paint: <strong style="color:#aaffaa">"SHELTER · ALL ARE WELCOME"</strong>. Beneath it, someone has scratched in the wood with a knife: <em style="color:#ff4444">"do not go inside."</em>
+        </p>
+        <div class="choice-row">
+          <button class="choice-btn" onclick="choose('enc3','knock')">🚪 Knock on the door</button>
+          <button class="choice-btn" onclick="choose('enc3','window')">👁️ Look through the window</button>
+          <button class="choice-btn" onclick="choose('enc3','leave')">🏃 Keep walking</button>
+        </div>
+        <div class="choice-result" id="enc3-result"></div>
+      </div>
+    </div>
+
+    <!-- Encounter 4 — THE SCARE -->
+    <div class="encounter" id="enc4">
+      <div class="encounter-card" data-step="Encounter 04 — FINAL">
+        <p class="enc-time">10:47 PM · ???  miles in</p>
+        <h3 class="enc-title">You've Been Walking In Circles</h3>
+        <p class="enc-text">
+          You recognise the clearing. The hanging figures. The stone circle. But you entered from a different direction this time. You have been walking straight — you checked with your compass — and yet you are back where you started. <span class="danger">The bones in the fire circle are gone.</span> The rocking chair from the cabin is here now, in the middle of the clearing, still rocking. There is a figure in it. <span class="danger">The figure is looking at you.</span> It has been here the whole time, watching you walk your circles. It slowly raises one hand. It points — not at you — but at something directly behind you.<br><br>
+          <span style="letter-spacing:4px;color:#ff2222">Very slowly. Turn around.</span>
+        </p>
+        <div style="text-align:center;margin-top:24px">
+          <button class="btn-horror" onclick="HorrorScare.run('👺','IT WAS BEHIND YOU!')">
+            😰 Turn Around
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <span class="footer-logo">☠ DarkVault</span>
+    <ul class="footer-links">
+      <li><a href="index.html">Home</a></li><li><a href="chapters.html">Story</a></li>
+      <li><a href="asylum.html">Asylum</a></li><li><a href="ritual.html">Ritual</a></li>
+      <li><a href="gallery.html">Gallery</a></li><li><a href="jumpscare.html">Scream Room</a></li>
+    </ul>
+    <div class="footer-divider"></div>
+    <p class="footer-copy">© 2026 DarkVault · You won't find your way out 😈</p>
+  </footer>
+
+  <div id="countdown-overlay"><div id="countdown-num">3</div><div id="countdown-label">BRACE YOURSELF…</div></div>
+  <div id="jumpscare-screen"><div id="scare-emoji">😱</div><div id="scare-text">BOO!</div></div>
+  <div id="aftermath-screen">
+    <div class="aftermath-skull">💀</div>
+    <h2 class="aftermath-title">GOTCHA! 😂</h2>
+    <p class="aftermath-msg">The forest claimed you! Send this link to your friends and let the forest claim them too.<br><em style="color:#ff6666">No one escapes Grimvale.</em></p>
+    <div class="aftermath-actions">
+      <button class="btn-horror" onclick="copyPrankLink()">📋 Share The Forest</button>
+      <button class="btn-horror btn-ghost" onclick="location.reload()">🔄 Try Again</button>
+      <a href="ritual.html" class="btn-horror btn-ghost">🕯 Begin Ritual</a>
+    </div>
+    <p id="copy-feedback" style="margin-top:16px;color:#55ff55;font-size:.9rem;opacity:0;transition:opacity .5s;min-height:22px"></p>
+  </div>
+
+  <script src="horror.js"></script>
+  <script>
+    // Generate tree silhouettes
+    const treeContainer = document.getElementById('trees');
+    const treeSizes = [80,120,100,140,90,130,110,85,150,95,125,105,115,70,145];
+    treeSizes.forEach((h, i) => {
+      const t = document.createElement('div');
+      t.className = 'tree';
+      const w = h * 0.6;
+      t.style.cssText = `border-left-width:${w/2}px;border-right-width:${w/2}px;border-bottom-width:${h}px;animation-duration:${2+Math.random()*3}s;animation-delay:${Math.random()*2}s`;
+      treeContainer.appendChild(t);
+    });
+
+    let forestStarted = false;
+    function beginForest() {
+      if (forestStarted) return;
+      forestStarted = true;
+      HorrorAudio.unlock();
+      HorrorAudio.playTone(40, 2, 'sawtooth', 0.04);
+      HorrorFX.shake(5, 400);
+      document.getElementById('enter-forest-btn').textContent = '🌲 You Are Inside...';
+      document.getElementById('enter-forest-btn').disabled = true;
+      document.getElementById('forest-intro').style.display = 'block';
+      document.getElementById('depth-meter').style.opacity = '1';
+      // Reveal encounters progressively
+      let d = 0;
+      ['enc1','enc2','enc3','enc4'].forEach((id, i) => {
+        setTimeout(() => {
+          const el = document.getElementById(id);
+          el.classList.add('visible');
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          d = ((i+1)/4)*100;
+          document.getElementById('depth-fill').style.height = d + '%';
+          HorrorAudio.playTone(40 + i*10, 0.5, 'sine', 0.03);
+        }, i * 3500 + 500);
+      });
+    }
+
+    const choiceResponses = {
+      enc1: {
+        left:  'You follow the sound. It grows louder — and then stops abruptly as you enter a small clearing. Empty. Completely empty. But the leaves are disturbed in a circle around you, as though something circled you while you stood there. You did not hear it.',
+        right: 'The right path curves steadily downward. After ten minutes, you realise you are moving deeper than the terrain should allow. The air grows colder. Behind you, the crying begins again — but now it sounds closer. Following.',
+        back:  'You turn around. The path behind you is gone. Not obscured by darkness — simply absent. Trees grow where the trail was, as though it never existed.'
+      },
+      enc2: {
+        cross:  'You cross the clearing quickly, eyes down. Halfway across, all the hanging figures turn in unison to face you. You do not look up. You walk faster. When you reach the other side, you stop and look back. They are all facing outward again. Away from the clearing. Watching the trees.',
+        around: 'You push through the undergrowth. Branches snag your clothes. When you emerge on the other side, you are standing in the centre of the clearing. You went around it. You ended up inside it.',
+        bones:  'You crouch over the ash. The bones are there — arranged, not scattered. The arrangement is deliberate. It takes you a moment to realise what it spells. Your name.'
+      },
+      enc3: {
+        knock:  'The door opens immediately. Darkness inside. The rocking chair is now inside, in the middle of the room, and it is rocking. You back away slowly. As you turn to run, you hear the door close quietly behind you. Locked.',
+        window: 'You press your face to the glass. A figure sits at a table with its back to you — motionless. As your eyes adjust, you realise every surface is covered in photographs. All of the same subject. All facing the window. All photographs of you, taken from outside.',
+        leave:  'You continue walking. After fifteen minutes, the cabin appears again ahead of you. The rocking chair is back outside. This time it is facing away from the door. Facing you.'
+      }
+    };
+
+    function choose(encId, option) {
+      HorrorAudio.unlock();
+      HorrorAudio.playTone(55, 0.6, 'sine', 0.04);
+      const result = document.getElementById(encId + '-result');
+      result.textContent = choiceResponses[encId][option];
+      result.style.display = 'block';
+      // Disable buttons
+      document.querySelectorAll(`#${encId} .choice-btn`).forEach(b => { b.disabled = true; b.style.opacity = '0.4'; });
+      setTimeout(() => HorrorFX.shake(4, 300), 1000);
+    }
+  </script>
+</body>
+</html>
