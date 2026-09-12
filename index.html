@@ -6,6 +6,7 @@
   <title>DarkVault — The World's Most Terrifying Website</title>
   <meta name="description" content="Enter DarkVault — the world's most terrifying horror experience. Multiple haunted rooms, jump scares, and psychological horror await."/>
   <link rel="stylesheet" href="styles.css"/>
+  <link rel="stylesheet" href="fonts.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=Special+Elite&family=Cinzel+Decorative:wght@400;700;900&family=UnifrakturMaguntia&display=swap" rel="stylesheet"/>
 </head>
 <body>
@@ -76,21 +77,21 @@
       </div>
 
       <h1 class="site-logo glitch" data-text="DarkVault">DarkVault</h1>
-      <p class="site-tagline">The World's Most Terrifying Horror Experience</p>
+      <p class="site-tagline" id="home-tagline">The World's Most Terrifying Horror Experience</p>
 
       <div class="warning-banner reveal" style="animation:fadeSlideUp 1s ease-out 0.8s both;opacity:0">
         <span class="w-icon">⚠️</span>
-        <p><strong>EXTREME WARNING:</strong> This site contains violent jump scares, disturbing imagery,
+        <p id="home-warning"><strong>EXTREME WARNING:</strong> This site contains violent jump scares, disturbing imagery,
           psychological horror and loud audio. Not suitable for heart conditions, anxiety disorders,
           or the faint of heart. <em>You have been warned.</em></p>
       </div>
 
       <div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-top:40px;
         animation:fadeSlideUp 1s ease-out 1s both;opacity:0">
-        <button class="btn-horror" onclick="HorrorScare.run('😱','WELCOME TO HELL!')">
-          💀 Enter The Vault
+        <button class="btn-horror" onclick="HorrorScare.run('😱',getLangText('WELCOME TO HELL!','JAHANNUM MEIN KHUSH AMDEED!'))">
+          💀 <span id="btn-enter-text">Enter The Vault</span>
         </button>
-        <a href="chapters.html" class="btn-horror btn-ghost">📖 Read The Story</a>
+        <a href="chapters.html" class="btn-horror btn-ghost">📖 <span id="btn-story-text">Read The Story</span></a>
       </div>
 
       <p id="dare-msg" style="margin-top:32px;font-style:italic;color:#bb3333;
@@ -98,6 +99,28 @@
         animation:fadeSlideUp 1s ease-out 1.3s both;opacity:0">
         Something is already watching you...
       </p>
+
+      <!-- Language Toggle -->
+      <div style="margin-top:28px;display:flex;gap:0;justify-content:center;
+        animation:fadeSlideUp 1s ease-out 1.5s both;opacity:0">
+        <button id="lang-en" onclick="setHomeLang('en')"
+          style="font-family:'Cinzel Decorative','Palatino Linotype',Georgia,serif;
+            font-size:.65rem;letter-spacing:2px;text-transform:uppercase;
+            padding:9px 20px;border:1px solid rgba(139,0,0,.5);
+            background:rgba(139,0,0,.25);color:#e8e8e8;
+            border-radius:4px 0 0 4px;cursor:pointer;transition:all .3s;
+            box-shadow:0 0 10px rgba(255,0,0,.2)">
+          🇬🇧 English
+        </button>
+        <button id="lang-ur" onclick="setHomeLang('ur')"
+          style="font-family:'Cinzel Decorative','Palatino Linotype',Georgia,serif;
+            font-size:.65rem;letter-spacing:2px;text-transform:uppercase;
+            padding:9px 20px;border:1px solid rgba(139,0,0,.3);
+            background:rgba(10,0,0,.4);color:#666;
+            border-radius:0 4px 4px 0;cursor:pointer;transition:all .3s">
+          🇵🇰 Roman Urdu
+        </button>
+      </div>
     </div>
 
     <!-- Gate silhouette -->
@@ -265,8 +288,8 @@
   <!-- ===== SEND TO FRIENDS ===== -->
   <section style="padding:80px 40px;text-align:center;background:linear-gradient(to bottom,#050505,#0a0000,#050505)">
     <div class="reveal">
-      <h2 class="section-title" style="margin-bottom:16px">🕷 Prank Your Friends 🕷</h2>
-      <p style="color:#777;max-width:500px;margin:0 auto 36px;font-size:0.95rem;line-height:1.8">
+      <h2 class="section-title" style="margin-bottom:16px" id="prank-title">🕷 Prank Your Friends 🕷</h2>
+      <p id="prank-sub" style="color:#777;max-width:500px;margin:0 auto 36px;font-size:0.95rem;line-height:1.8">
         Copy the link. Send it to someone you love. Wait for their scream.
         The best prank site in existence — weaponised for your entertainment.
       </p>
@@ -327,45 +350,136 @@
 
   <script src="horror.js"></script>
   <script>
-    // Rotating dare messages
-    const dares = [
-      'Something is already watching you...',
-      'It knows you opened this page.',
-      'Do not look behind you.',
-      'You are not alone right now.',
-      'The last visitor never came back.',
-      'Your mouse is being controlled...',
-      'They can see your face through the screen.',
-      'Close this tab. While you still can.',
-    ];
+    /* ── Language content ── */
+    const LANG = {
+      en: {
+        tagline:    'The World\'s Most Terrifying Horror Experience',
+        warning:    '<strong>EXTREME WARNING:</strong> This site contains violent jump scares, disturbing imagery, psychological horror and loud audio. Not suitable for heart conditions, anxiety disorders, or the faint of heart. <em>You have been warned.</em>',
+        btnEnter:   'Enter The Vault',
+        btnStory:   'Read The Story',
+        dareMsg:    'Something is already watching you...',
+        prankTitle: '🕷 Prank Your Friends 🕷',
+        prankSub:   'Copy the link. Send it to someone you love. Wait for their scream. The best prank site in existence — weaponised for your entertainment.',
+        dares: [
+          'Something is already watching you...',
+          'It knows you opened this page.',
+          'Do not look behind you.',
+          'You are not alone right now.',
+          'The last visitor never came back.',
+          'Your mouse is being controlled...',
+          'They can see your face through the screen.',
+          'Close this tab. While you still can.',
+        ]
+      },
+      ur: {
+        tagline:    'Duniya Ki Sab Se Khoofnak Website',
+        warning:    '<strong>SAKHTI KHABARDAR:</strong> Is website mein khoofnak jump scares, disturbing manzar, psychological horror aur tej awaazein hain. Dil ke mareez, anxious log, ya kamzor dil wale bilkul mat aayein. <em>Tumhein khabardar kar diya gaya hai.</em>',
+        btnEnter:   'Vault Mein Daakhil Ho',
+        btnStory:   'Kahani Parho',
+        dareMsg:    'Kuch pehle se tumhein dekh raha hai...',
+        prankTitle: '🕷 Doston Ko Darrao 🕷',
+        prankSub:   'Link copy karo. Kisi ko bhejo. Unki cheekh ka intizaar karo. Duniya ki sab se bari prank website — tumhari khushi ke liye.',
+        dares: [
+          'Kuch pehle se tumhein dekh raha hai...',
+          'Woh jaanta hai tum ne ye page khola.',
+          'Peechay mat dekho.',
+          'Tum abhi akele nahi ho.',
+          'Pichla visitor wapas nahi aaya.',
+          'Tumhara mouse control ho raha hai...',
+          'Woh screen se tumhara chehra dekh sakte hain.',
+          'Ye tab band karo. Abhi. Jab tak ho sake.',
+        ]
+      }
+    };
+
+    let currentLang = 'en';
+    let dareIndex   = 0;
+    let dareTimer   = null;
+    const dareEl    = document.getElementById('dare-msg');
+
+    function getLangText(en, ur) {
+      return currentLang === 'ur' ? ur : en;
+    }
+
+    function setHomeLang(lang) {
+      currentLang = lang;
+      HorrorAudio.unlock();
+      HorrorAudio.playTone(220, .2, 'sine', .04);
+
+      const L = LANG[lang];
+
+      // Update tagline
+      document.getElementById('home-tagline').textContent = L.tagline;
+      // Update warning
+      document.getElementById('home-warning').innerHTML = L.warning;
+      // Update buttons
+      document.getElementById('btn-enter-text').textContent = L.btnEnter;
+      document.getElementById('btn-story-text').textContent = L.btnStory;
+      // Update prank section
+      document.getElementById('prank-title').innerHTML = L.prankTitle;
+      document.getElementById('prank-sub').textContent  = L.prankSub;
+      // Update dare message immediately
+      dareEl.textContent = L.dareMsg;
+      dareIndex = 0;
+
+      // Style the active button
+      const enBtn = document.getElementById('lang-en');
+      const urBtn = document.getElementById('lang-ur');
+      if (lang === 'en') {
+        enBtn.style.background = 'rgba(139,0,0,.25)';
+        enBtn.style.color      = '#e8e8e8';
+        enBtn.style.borderColor= 'rgba(139,0,0,.5)';
+        enBtn.style.boxShadow  = '0 0 10px rgba(255,0,0,.2)';
+        urBtn.style.background = 'rgba(10,0,0,.4)';
+        urBtn.style.color      = '#666';
+        urBtn.style.borderColor= 'rgba(139,0,0,.3)';
+        urBtn.style.boxShadow  = 'none';
+      } else {
+        urBtn.style.background = 'rgba(139,0,0,.25)';
+        urBtn.style.color      = '#e8e8e8';
+        urBtn.style.borderColor= 'rgba(139,0,0,.5)';
+        urBtn.style.boxShadow  = '0 0 10px rgba(255,0,0,.2)';
+        enBtn.style.background = 'rgba(10,0,0,.4)';
+        enBtn.style.color      = '#666';
+        enBtn.style.borderColor= 'rgba(139,0,0,.3)';
+        enBtn.style.boxShadow  = 'none';
+      }
+
+      // Restart dare cycle with new language
+      clearInterval(dareTimer);
+      startDareCycle();
+    }
+
+    function startDareCycle() {
+      dareTimer = setInterval(() => {
+        dareEl.style.opacity = 0;
+        setTimeout(() => {
+          const dares = LANG[currentLang].dares;
+          dareIndex = (dareIndex + 1) % dares.length;
+          dareEl.textContent = dares[dareIndex];
+          dareEl.style.transition = 'opacity 1s';
+          dareEl.style.opacity = 1;
+        }, 600);
+      }, 4000);
+    }
+
     // Roman Urdu scare button
     function darauScare() {
       HorrorAudio.unlock();
-      // Show a Roman Urdu dare message first, then full jumpscare
-      const dareEl = document.getElementById('dare-msg');
       const urduDares = [
         'Yeh website bohot khatarnak hai... ab bahut der ho gayi! 😱',
         'Peechay mat dekho... woh aa gaya! 👹',
         'Tum andar aa gaye... nikalna mushkil hai! 💀',
       ];
-      dareEl.style.color = '#ff0000';
-      dareEl.textContent = urduDares[Math.floor(Math.random() * urduDares.length)];
+      dareEl.style.color   = '#ff0000';
+      dareEl.textContent   = urduDares[Math.floor(Math.random() * urduDares.length)];
       HorrorFX.shake(6, 400);
       HorrorAudio.playTone(60, 1, 'sawtooth', 0.07);
       setTimeout(() => HorrorScare.run('👹', 'PAKRA GAYA! 😂'), 2000);
     }
 
-    let di = 0;
-    const dareEl = document.getElementById('dare-msg');
-    setInterval(() => {
-      dareEl.style.opacity = 0;
-      setTimeout(() => {
-        di = (di + 1) % dares.length;
-        dareEl.textContent = dares[di];
-        dareEl.style.transition = 'opacity 1s';
-        dareEl.style.opacity = 1;
-      }, 600);
-    }, 4000);
+    // Start dare cycle on load
+    startDareCycle();
   </script>
 </body>
 </html>
